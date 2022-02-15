@@ -35,17 +35,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateNewWorkspace = void 0;
 var child_process_1 = require("child_process");
+var gitignore_1 = __importDefault(require("gitignore"));
+var util_1 = require("util");
+var fs_1 = __importDefault(require("fs"));
+var path_1 = __importDefault(require("path"));
+var templates_1 = require("./templates");
+var writeGitignore = (0, util_1.promisify)(gitignore_1.default.writeFile);
+var writeFile = (0, util_1.promisify)(fs_1.default.writeFile);
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
+        var projectPath, createWorkspace, createMainApp, movePackage, moveVsCode, gitInit, install;
         return __generator(this, function (_a) {
-            (0, child_process_1.execSync)("mkdir ".concat(initOptions.projectName));
-            (0, child_process_1.execSync)("cd ".concat(initOptions.projectName, " & ng new ").concat(initOptions.projectName, "  --no-interactive"));
+            projectPath = "".concat((0, child_process_1.execSync)('pwd').toString().replace(/\n/g, ''), "/").concat(initOptions.projectName);
+            createWorkspace = "mkdir ".concat(initOptions.projectName, " && cd ").concat(initOptions.projectName, " && mkdir apps && cd apps");
+            createMainApp = "ng new ".concat(initOptions.projectName, " --routing --style=").concat(initOptions.style, " --skip-git --skip-install");
+            movePackage = "mv ./".concat(initOptions.projectName, "/package.json ..");
+            moveVsCode = "mv ./".concat(initOptions.projectName, "/.vscode ..");
+            gitInit = 'cd .. && git init';
+            install = 'npm install';
+            (0, child_process_1.execSync)("".concat(createWorkspace, " && ").concat(createMainApp, " && ").concat(movePackage, " && ").concat(moveVsCode, " && ").concat(gitInit, " && ").concat(install));
+            setBitoviConfigurationFile(initOptions.projectName, projectPath);
+            createGitignore(projectPath);
             return [2 /*return*/];
         });
     });
 }
 exports.generateNewWorkspace = generateNewWorkspace;
+function setBitoviConfigurationFile(projectName, projectPath) {
+    (0, child_process_1.execSync)("touch ./".concat(projectName, "/bi.json"));
+    var bitoviConfig = JSON.parse(templates_1.bitoviConfigTemplate);
+    bitoviConfig.apps[projectName] = "apps/".concat(projectName);
+    writeFile(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
+}
+function createGitignore(targetDirectory) {
+    return __awaiter(this, void 0, void 0, function () {
+        var file;
+        return __generator(this, function (_a) {
+            file = fs_1.default.createWriteStream(path_1.default.join(targetDirectory, '.gitignore'), {
+                flags: 'a',
+            });
+            writeGitignore({
+                type: 'Node',
+                file: file,
+            });
+            return [2 /*return*/];
+        });
+    });
+}
 //# sourceMappingURL=workspace.generator.js.map

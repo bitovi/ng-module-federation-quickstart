@@ -15,7 +15,7 @@ export async function questionsToInitProject(
 		});
 	}
 
-	/* 	if (!acceptedStyles.includes(args.style)) {
+	if (!acceptedStyles.includes(args.style)) {
 		questions.push({
 			type: 'list',
 			name: 'style',
@@ -23,7 +23,7 @@ export async function questionsToInitProject(
 			choices: acceptedStyles,
 			default: 'css',
 		});
-	} */
+	}
 
 	const answers = await inquirer.prompt(questions);
 	console.log(answers);
