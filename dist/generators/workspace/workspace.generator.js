@@ -37,10 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateNewWorkspace = void 0;
+var child_process_1 = require("child_process");
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            console.log(initOptions);
+            (0, child_process_1.execSync)("mkdir ".concat(initOptions.projectName));
+            (0, child_process_1.execSync)("cd ".concat(initOptions.projectName, " & ng new ").concat(initOptions.projectName, "  --no-interactive"));
             return [2 /*return*/];
         });
     });

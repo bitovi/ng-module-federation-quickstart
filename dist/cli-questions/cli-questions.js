@@ -56,15 +56,6 @@ function questionsToInitProject(args) {
                             message: 'Please choose the name of your new workspace',
                         });
                     }
-                    if (!acceptedStyles.includes(args.style)) {
-                        questions.push({
-                            type: 'list',
-                            name: 'style',
-                            message: 'Please choose the syntax to use to write styles',
-                            choices: acceptedStyles,
-                            default: 'css',
-                        });
-                    }
                     return [4 /*yield*/, inquirer_1.default.prompt(questions)];
                 case 1:
                     answers = _a.sent();

@@ -65,7 +65,6 @@ function cli(args) {
                 case 0:
                     options = parseArgumentsIntoOptions(args);
                     if (!options.init) return [3 /*break*/, 2];
-                    console.log('llego ');
                     return [4 /*yield*/, (0, cli_questions_1.questionsToInitProject)(options)];
                 case 1:
                     initOptions = _a.sent();

@@ -15,7 +15,7 @@
 	"dependencies": {
 		"@angular-devkit/core": "^13.2.3",
 		"@angular-devkit/schematics": "^13.2.3",
-		"jsonc-parser": "^3.0.0",
+		"@angular/cli": "^13.2.3",
 		"arg": "^4.1.0",
 		"chalk": "^2.4.2",
 		"covgen": "^3.1.0",
@@ -23,6 +23,7 @@
 		"execa": "^1.0.0",
 		"gitignore": "^0.6.0",
 		"inquirer": "^6.2.2",
+		"jsonc-parser": "^3.0.0",
 		"listr": "^0.14.3",
 		"ncp": "^2.0.0",
 		"pkg-install": "^0.2.0",
