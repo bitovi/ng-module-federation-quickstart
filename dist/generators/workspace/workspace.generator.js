@@ -45,21 +45,45 @@ var gitignore_1 = __importDefault(require("gitignore"));
 var util_1 = require("util");
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
+var process_1 = __importDefault(require("process"));
 var templates_1 = require("./templates");
 var writeGitignore = (0, util_1.promisify)(gitignore_1.default.writeFile);
 exports.writeFile = (0, util_1.promisify)(fs_1.default.writeFile);
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectPath, createWorkspace, createMainApp, movePackage, moveVsCode, gitInit, install;
+        var projectPath, goToWorkspace, createMainApp, gitInit, filesFromVsCode, _i, filesFromVsCode_1, fileFromVsCode;
         return __generator(this, function (_a) {
-            projectPath = "".concat((0, child_process_1.execSync)('pwd').toString().replace(/\n/g, ''), "/").concat(initOptions.projectName);
-            createWorkspace = "mkdir ".concat(initOptions.projectName, " && cd ").concat(initOptions.projectName, " && mkdir apps && cd apps");
+            projectPath = path_1.default.join(process_1.default.cwd(), initOptions.projectName);
+            fs_1.default.mkdirSync(path_1.default.join(projectPath));
+            fs_1.default.mkdirSync(path_1.default.join("".concat(projectPath), 'apps'));
+            goToWorkspace = "cd ".concat(projectPath, "/apps");
             createMainApp = "ng new ".concat(initOptions.projectName, " --routing --style=").concat(initOptions.style, " --skip-git --skip-install");
-            movePackage = "mv ./".concat(initOptions.projectName, "/package.json ..");
-            moveVsCode = "mv ./".concat(initOptions.projectName, "/.vscode ..");
-            gitInit = 'cd .. && git init';
-            install = 'npm install';
-            (0, child_process_1.execSync)("".concat(createWorkspace, " && ").concat(createMainApp, " && ").concat(movePackage, " && ").concat(moveVsCode, " && ").concat(gitInit, " && ").concat(install));
+            gitInit = "cd ".concat(projectPath, " && git init");
+            (0, child_process_1.execSync)("".concat(goToWorkspace, " && ").concat(createMainApp, " && ").concat(gitInit));
+            try {
+                fs_1.default.copyFileSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/package.json")), path_1.default.join(projectPath, 'package.json'));
+            }
+            catch (e) {
+                console.error(e);
+            }
+            try {
+                filesFromVsCode = fs_1.default.readdirSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/.vscode")));
+                fs_1.default.mkdirSync(path_1.default.join(projectPath, ".vscode"));
+                console.log(filesFromVsCode);
+                for (_i = 0, filesFromVsCode_1 = filesFromVsCode; _i < filesFromVsCode_1.length; _i++) {
+                    fileFromVsCode = filesFromVsCode_1[_i];
+                    fs_1.default.copyFileSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/.vscode/").concat(fileFromVsCode)), path_1.default.join(projectPath, ".vscode/".concat(fileFromVsCode)));
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+            try {
+                (0, child_process_1.execSync)("cd ".concat(projectPath, " && npm install"));
+            }
+            catch (e) {
+                console.error(e);
+            }
             setBitoviConfigurationFile(initOptions.projectName, projectPath);
             createGitignore(projectPath);
             return [2 /*return*/];

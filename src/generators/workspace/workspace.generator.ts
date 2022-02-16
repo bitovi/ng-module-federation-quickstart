@@ -5,6 +5,7 @@ import gitignore from 'gitignore';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
 
 import { bitoviConfigTemplate } from './templates';
 
@@ -12,19 +13,50 @@ const writeGitignore = promisify(gitignore.writeFile);
 export const writeFile = promisify(fs.writeFile);
 
 export async function generateNewWorkspace(initOptions: IQuestionInit) {
-	const projectPath = `${execSync('pwd').toString().replace(/\n/g, '')}/${
-		initOptions.projectName
-	}`;
-	const createWorkspace = `mkdir ${initOptions.projectName} && cd ${initOptions.projectName} && mkdir apps && cd apps`;
-	const createMainApp = `ng new ${initOptions.projectName} --routing --style=${initOptions.style} --skip-git --skip-install`;
-	const movePackage = `mv ./${initOptions.projectName}/package.json ..`;
-	const moveVsCode = `mv ./${initOptions.projectName}/.vscode ..`;
-	const gitInit = 'cd .. && git init';
-	const install = 'npm install';
+	const projectPath = path.join(process.cwd(), initOptions.projectName);
 
-	execSync(
-		`${createWorkspace} && ${createMainApp} && ${movePackage} && ${moveVsCode} && ${gitInit} && ${install}`,
-	);
+	fs.mkdirSync(path.join(projectPath));
+	fs.mkdirSync(path.join(`${projectPath}`, 'apps'));
+
+	const goToWorkspace = `cd ${projectPath}/apps`;
+	const createMainApp = `ng new ${initOptions.projectName} --routing --style=${initOptions.style} --skip-git --skip-install`;
+	const gitInit = `cd ${projectPath} && git init`;
+
+	execSync(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
+
+	try {
+		fs.copyFileSync(
+			path.join(projectPath, `apps/${initOptions.projectName}/package.json`),
+			path.join(projectPath, 'package.json'),
+		);
+	} catch (e) {
+		console.error(e);
+	}
+
+	try {
+		const filesFromVsCode = fs.readdirSync(
+			path.join(projectPath, `apps/${initOptions.projectName}/.vscode`),
+		);
+		fs.mkdirSync(path.join(projectPath, `.vscode`));
+
+		for (let fileFromVsCode of filesFromVsCode) {
+			fs.copyFileSync(
+				path.join(
+					projectPath,
+					`apps/${initOptions.projectName}/.vscode/${fileFromVsCode}`,
+				),
+				path.join(projectPath, `.vscode/${fileFromVsCode}`),
+			);
+		}
+	} catch (e) {
+		console.error(e);
+	}
+
+	try {
+		execSync(`cd ${projectPath} && npm install`);
+	} catch (e) {
+		console.error(e);
+	}
 
 	setBitoviConfigurationFile(initOptions.projectName, projectPath);
 	createGitignore(projectPath);

@@ -5,7 +5,7 @@ import { writeFile } from '../workspace';
 import path from 'path';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
-	const projectPath = execSync('pwd').toString().replace(/\n/g, '');
+	const projectPath = path.join(process.cwd(), appOptions.projectName);
 	let bitoviConfig = null;
 
 	try {
@@ -16,11 +16,11 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 		console.error('You are not inside a bitovi project', e);
 	}
 
-	const createMainApp = `cd ./apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
-	const remoteFiles = `rm -rf ./${appOptions.projectName}/package.json && rm -rf ./${appOptions.projectName}/.vscode`;
+	const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
+	// const remoteFiles = `rm -rf ./${appOptions.projectName}/package.json && rm -rf ./${appOptions.projectName}/.vscode`;
 
 	execSync(
-		`${createMainApp} && ${remoteFiles} && cd ./apps/${appOptions.projectName} && ng g @bitovi/bi:bi --port=4201`,
+		`${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi --port=4201`,
 	);
 	bitoviConfig = JSON.parse(bitoviConfig);
 	bitoviConfig.apps[appOptions.projectName] = `apps/${appOptions.projectName}`;
