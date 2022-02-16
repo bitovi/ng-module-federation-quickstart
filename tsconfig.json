@@ -8,6 +8,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"noImplicitAny": false,
+		"strictNullChecks": false,
 		"typeRoots": ["./dist/cli.d.ts"]
 	},
 	"include": ["./src/**/*"],

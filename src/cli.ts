@@ -1,6 +1,6 @@
 import arg from 'arg';
 import { questionsToInitProject } from './cli-questions';
-import { generateNewWorkspace } from './generators';
+import { generateNewWorkspace, generateRemote } from './generators';
 
 function parseArgumentsIntoOptions(rawArgs: any) {
 	const args = arg(
@@ -8,6 +8,7 @@ function parseArgumentsIntoOptions(rawArgs: any) {
 			'--init': Boolean,
 			'--project': String,
 			'--style': String,
+			'--remote': String,
 		},
 		{
 			argv: rawArgs.slice(2),
@@ -17,6 +18,7 @@ function parseArgumentsIntoOptions(rawArgs: any) {
 		init: args['--init'] || false,
 		projectName: args['--project'] || '',
 		style: args['--project'] || '',
+		remote: args['--remote'] || '',
 	};
 }
 
@@ -28,5 +30,13 @@ export async function cli(args: any) {
 		generateNewWorkspace(initOptions);
 
 		return;
+	}
+
+	if (options.remote.length > 0) {
+		const appOptions = await questionsToInitProject({
+			...options,
+			projectName: options.remote,
+		});
+		generateRemote(appOptions);
 	}
 }

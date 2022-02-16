@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50,50 +39,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cli = void 0;
-var arg_1 = __importDefault(require("arg"));
-var cli_questions_1 = require("./cli-questions");
-var generators_1 = require("./generators");
-function parseArgumentsIntoOptions(rawArgs) {
-    var args = (0, arg_1.default)({
-        '--init': Boolean,
-        '--project': String,
-        '--style': String,
-        '--remote': String,
-    }, {
-        argv: rawArgs.slice(2),
-    });
-    return {
-        init: args['--init'] || false,
-        projectName: args['--project'] || '',
-        style: args['--project'] || '',
-        remote: args['--remote'] || '',
-    };
-}
-function cli(args) {
+exports.generateRemote = void 0;
+var child_process_1 = require("child_process");
+var fs_1 = __importDefault(require("fs"));
+var workspace_1 = require("../workspace");
+var path_1 = __importDefault(require("path"));
+function generateRemote(appOptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var options, initOptions, appOptions;
+        var projectPath, bitoviConfig, createMainApp, remoteFiles;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    options = parseArgumentsIntoOptions(args);
-                    if (!options.init) return [3 /*break*/, 2];
-                    return [4 /*yield*/, (0, cli_questions_1.questionsToInitProject)(options)];
-                case 1:
-                    initOptions = _a.sent();
-                    (0, generators_1.generateNewWorkspace)(initOptions);
-                    return [2 /*return*/];
-                case 2:
-                    if (!(options.remote.length > 0)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, (0, cli_questions_1.questionsToInitProject)(__assign(__assign({}, options), { projectName: options.remote }))];
-                case 3:
-                    appOptions = _a.sent();
-                    (0, generators_1.generateRemote)(appOptions);
-                    _a.label = 4;
-                case 4: return [2 /*return*/];
+            projectPath = (0, child_process_1.execSync)('pwd').toString().replace(/\n/g, '');
+            bitoviConfig = null;
+            try {
+                bitoviConfig = JSON.parse(JSON.stringify(fs_1.default.readFileSync("".concat(projectPath, "/bi.json")).toString()));
             }
+            catch (e) {
+                console.error('You are not inside a bitovi project', e);
+            }
+            createMainApp = "cd ./apps && ng new ".concat(appOptions.projectName, " --routing --style=").concat(appOptions.style, " --skip-git --skip-install && cd ..");
+            remoteFiles = "rm -rf ./".concat(appOptions.projectName, "/package.json && rm -rf ./").concat(appOptions.projectName, "/.vscode");
+            (0, child_process_1.execSync)("".concat(createMainApp, " && ").concat(remoteFiles));
+            bitoviConfig = JSON.parse(bitoviConfig);
+            bitoviConfig.apps[appOptions.projectName] = "apps/".concat(appOptions.projectName);
+            (0, workspace_1.writeFile)(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
+            return [2 /*return*/];
         });
     });
 }
-exports.cli = cli;
-//# sourceMappingURL=cli.js.map
+exports.generateRemote = generateRemote;
+//# sourceMappingURL=app-generator.js.map

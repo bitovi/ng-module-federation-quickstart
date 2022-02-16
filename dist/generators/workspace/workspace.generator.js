@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNewWorkspace = void 0;
+exports.generateNewWorkspace = exports.writeFile = void 0;
 var child_process_1 = require("child_process");
 var gitignore_1 = __importDefault(require("gitignore"));
 var util_1 = require("util");
@@ -47,7 +47,7 @@ var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var templates_1 = require("./templates");
 var writeGitignore = (0, util_1.promisify)(gitignore_1.default.writeFile);
-var writeFile = (0, util_1.promisify)(fs_1.default.writeFile);
+exports.writeFile = (0, util_1.promisify)(fs_1.default.writeFile);
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
         var projectPath, createWorkspace, createMainApp, movePackage, moveVsCode, gitInit, install;
@@ -71,7 +71,7 @@ function setBitoviConfigurationFile(projectName, projectPath) {
     (0, child_process_1.execSync)("touch ./".concat(projectName, "/bi.json"));
     var bitoviConfig = JSON.parse(templates_1.bitoviConfigTemplate);
     bitoviConfig.apps[projectName] = "apps/".concat(projectName);
-    writeFile(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
+    (0, exports.writeFile)(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
 }
 function createGitignore(targetDirectory) {
     return __awaiter(this, void 0, void 0, function () {

@@ -9,7 +9,7 @@ import path from 'path';
 import { bitoviConfigTemplate } from './templates';
 
 const writeGitignore = promisify(gitignore.writeFile);
-const writeFile = promisify(fs.writeFile);
+export const writeFile = promisify(fs.writeFile);
 
 export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	const projectPath = `${execSync('pwd').toString().replace(/\n/g, '')}/${
