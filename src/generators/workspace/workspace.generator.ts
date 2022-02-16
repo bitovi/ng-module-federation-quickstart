@@ -10,7 +10,6 @@ import process from 'process';
 import { bitoviConfigTemplate } from './templates';
 
 const writeGitignore = promisify(gitignore.writeFile);
-export const writeFile = promisify(fs.writeFile);
 
 export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	const projectPath = path.join(process.cwd(), initOptions.projectName);
@@ -53,6 +52,14 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	}
 
 	try {
+		execSync(
+			`cd ${projectPath}/apps/${initOptions.projectName} && ng g @bitovi/bi:bi --projectName=${initOptions.projectName} --host`,
+		);
+	} catch (e) {
+		console.error(e);
+	}
+
+	try {
 		execSync(`cd ${projectPath} && npm install`);
 	} catch (e) {
 		console.error(e);
@@ -63,15 +70,13 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 }
 
 function setBitoviConfigurationFile(projectName: string, projectPath: string) {
-	execSync(`touch ./${projectName}/bi.json`);
-
 	const bitoviConfig = JSON.parse(bitoviConfigTemplate);
 	bitoviConfig.apps[projectName] = `apps/${projectName}`;
+	bitoviConfig.host = projectName;
 
-	writeFile(
+	fs.writeFileSync(
 		path.join(projectPath, 'bi.json'),
 		JSON.stringify(bitoviConfig),
-		'utf8',
 	);
 }
 

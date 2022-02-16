@@ -7,10 +7,25 @@ var webpack_1 = require("./webpack");
 function bitovi(_options) {
     return function (tree, _context) {
         if (_options.port) {
-            tree.create('webpack.config.js', (0, webpack_1.generateWebpackConfig)(_options.port));
+            tree.create('webpack.config.js', (0, webpack_1.generateWebpackConfig)({
+                port: _options.port,
+                projectName: _options.projectName,
+            }));
+            return removeNoNeededFiles(tree);
+        }
+        if (_options.host) {
+            tree.create('webpack.config.js', (0, webpack_1.generateWebpackConfig)({ port: 4200, projectName: _options.projectName }, true));
+            return removeNoNeededFiles(tree);
         }
         return tree;
     };
 }
 exports.bitovi = bitovi;
+function removeNoNeededFiles(tree) {
+    tree.delete('package.json');
+    tree.delete('.vscode');
+    tree.delete('.gitignore');
+    tree.delete('.editorconfig');
+    return tree;
+}
 //# sourceMappingURL=index.js.map

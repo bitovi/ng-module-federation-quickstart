@@ -11,4 +11,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./webpack-config"), exports);
+__exportStar(require("./webpack-config.interface"), exports);
 //# sourceMappingURL=index.js.map

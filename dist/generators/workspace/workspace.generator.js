@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNewWorkspace = exports.writeFile = void 0;
+exports.generateNewWorkspace = void 0;
 var child_process_1 = require("child_process");
 var gitignore_1 = __importDefault(require("gitignore"));
 var util_1 = require("util");
@@ -48,7 +48,6 @@ var path_1 = __importDefault(require("path"));
 var process_1 = __importDefault(require("process"));
 var templates_1 = require("./templates");
 var writeGitignore = (0, util_1.promisify)(gitignore_1.default.writeFile);
-exports.writeFile = (0, util_1.promisify)(fs_1.default.writeFile);
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
         var projectPath, goToWorkspace, createMainApp, gitInit, filesFromVsCode, _i, filesFromVsCode_1, fileFromVsCode;
@@ -69,7 +68,6 @@ function generateNewWorkspace(initOptions) {
             try {
                 filesFromVsCode = fs_1.default.readdirSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/.vscode")));
                 fs_1.default.mkdirSync(path_1.default.join(projectPath, ".vscode"));
-                console.log(filesFromVsCode);
                 for (_i = 0, filesFromVsCode_1 = filesFromVsCode; _i < filesFromVsCode_1.length; _i++) {
                     fileFromVsCode = filesFromVsCode_1[_i];
                     fs_1.default.copyFileSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/.vscode/").concat(fileFromVsCode)), path_1.default.join(projectPath, ".vscode/".concat(fileFromVsCode)));
@@ -79,11 +77,16 @@ function generateNewWorkspace(initOptions) {
                 console.error(e);
             }
             try {
-                (0, child_process_1.execSync)("cd ".concat(projectPath, " && npm install"));
+                (0, child_process_1.execSync)("cd ".concat(projectPath, "/apps/").concat(initOptions.projectName, " && ng g @bitovi/bi:bi --projectName=").concat(initOptions.projectName, " --host"));
             }
             catch (e) {
                 console.error(e);
             }
+            /* 	try {
+                execSync(`cd ${projectPath} && npm install`);
+            } catch (e) {
+                console.error(e);
+            } */
             setBitoviConfigurationFile(initOptions.projectName, projectPath);
             createGitignore(projectPath);
             return [2 /*return*/];
@@ -92,10 +95,10 @@ function generateNewWorkspace(initOptions) {
 }
 exports.generateNewWorkspace = generateNewWorkspace;
 function setBitoviConfigurationFile(projectName, projectPath) {
-    (0, child_process_1.execSync)("touch ./".concat(projectName, "/bi.json"));
     var bitoviConfig = JSON.parse(templates_1.bitoviConfigTemplate);
     bitoviConfig.apps[projectName] = "apps/".concat(projectName);
-    (0, exports.writeFile)(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
+    bitoviConfig.host = projectName;
+    fs_1.default.writeFileSync(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
 }
 function createGitignore(targetDirectory) {
     return __awaiter(this, void 0, void 0, function () {

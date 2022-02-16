@@ -1,9 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateWebpackConfig = void 0;
-var webpackConfigTemplate = "const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');\nconst mf = require('@angular-architects/module-federation/webpack');\nconst path = require('path');\nconst share = mf.share;\n\nconst tsConfigPath = path.join(__dirname, '../../tsconfig.base.json');\n\nconst workspaceRootPath = path.join(__dirname, '../../');\nconst sharedMappings = new mf.SharedMappings();\nsharedMappings.register(\n  tsConfigPath,\n  [],\n  workspaceRootPath\n);\n\nmodule.exports = {\n  output: {\n    uniqueName: 'dashboard',\n    publicPath: 'auto',\n  },\n  optimization: {\n    runtimeChunk: false,\n  },\n  experiments: {\n    outputModule: true,\n  },\n  resolve: {\n    alias: {\n      ...sharedMappings.getAliases(),\n    },\n  },\n  plugins: [\n    new ModuleFederationPlugin({\n      remotes: {\n        login: 'http://localhost:{{modulePort}}/remoteEntry.js',\n        products: 'http://localhost:{{modulePort}}/remoteEntry.js',\n      },\n      shared: share({\n        '@angular/core': {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        '@angular/common': {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        '@angular/common/http': {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        '@angular/router': {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        '@ngrx/store': {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        rxjs: {\n          singleton: true,\n          strictVersion: true,\n          requiredVersion: 'auto',\n          includeSecondaries: true,\n        },\n        ...sharedMappings.getDescriptors(),\n      }),\n      library: {\n        type: 'module',\n      },\n    }),\n    sharedMappings.getPlugin(),\n  ],\n};";
-var generateWebpackConfig = function (modulePort) {
-    return webpackConfigTemplate.replace(/{{modulePort}}/g, modulePort.toString());
-};
+var webpack_host_config_1 = require("./webpack-host.config");
+var webpack_remote_config_1 = require("./webpack-remote.config");
+function generateWebpackConfig(config, isHost) {
+    if (isHost === void 0) { isHost = false; }
+    console.log('LEGO AL CONG', config);
+    if (isHost) {
+        return webpack_host_config_1.webpackHostConfigTemplate.replace(/{{projectName}}/g, config.projectName.toString());
+    }
+    return webpack_remote_config_1.webpackRemoteConfigTemplate.replace(/{{projectName}}/g, config.projectName.toString());
+}
 exports.generateWebpackConfig = generateWebpackConfig;
 //# sourceMappingURL=webpack-config.js.map

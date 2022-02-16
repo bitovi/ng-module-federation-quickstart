@@ -1,9 +1,4 @@
-import {
-	externalSchematic,
-	Rule,
-	SchematicContext,
-	Tree,
-} from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { generateWebpackConfig } from './webpack';
 
 // You don't have to export the function as default. You can also have more than one rule factory
@@ -11,9 +6,36 @@ import { generateWebpackConfig } from './webpack';
 export function bitovi(_options: any): Rule {
 	return (tree: Tree, _context: SchematicContext) => {
 		if (_options.port) {
-			tree.create('webpack.config.js', generateWebpackConfig(_options.port));
+			tree.create(
+				'webpack.config.js',
+				generateWebpackConfig({
+					port: _options.port,
+					projectName: _options.projectName,
+				}),
+			);
+			return removeNoNeededFiles(tree);
+		}
+
+		if (_options.host) {
+			tree.create(
+				'webpack.config.js',
+				generateWebpackConfig(
+					{ port: 4200, projectName: _options.projectName },
+					true,
+				),
+			);
+			return removeNoNeededFiles(tree);
 		}
 
 		return tree;
 	};
+}
+
+function removeNoNeededFiles(tree: Tree): Tree {
+	tree.delete('package.json');
+	tree.delete('.vscode');
+	tree.delete('.gitignore');
+	tree.delete('.editorconfig');
+
+	return tree;
 }

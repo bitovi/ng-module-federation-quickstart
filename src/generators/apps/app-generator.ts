@@ -1,11 +1,10 @@
 import { execSync, exec } from 'child_process';
 import fs from 'fs';
 import { IQuestionInit } from '../../cli-questions';
-import { writeFile } from '../workspace';
 import path from 'path';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
-	const projectPath = path.join(process.cwd(), appOptions.projectName);
+	const projectPath = path.join(process.cwd());
 	let bitoviConfig = null;
 
 	try {
@@ -17,17 +16,20 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 	}
 
 	const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
-	// const remoteFiles = `rm -rf ./${appOptions.projectName}/package.json && rm -rf ./${appOptions.projectName}/.vscode`;
+	const createdApps = fs.readdirSync(path.join(projectPath, `apps`));
 
 	execSync(
-		`${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi --port=4201`,
+		`${createMainApp} && cd ${projectPath}/apps/${
+			appOptions.projectName
+		} && ng g @bitovi/bi:bi  --port=420${
+			createdApps.length + 1
+		} --projectName=${appOptions.projectName} --remote`,
 	);
 	bitoviConfig = JSON.parse(bitoviConfig);
 	bitoviConfig.apps[appOptions.projectName] = `apps/${appOptions.projectName}`;
 
-	await writeFile(
+	fs.writeFileSync(
 		path.join(projectPath, 'bi.json'),
 		JSON.stringify(bitoviConfig),
-		'utf8',
 	);
 }
