@@ -10,8 +10,10 @@
 	"bin": "bin/bitovi-project",
 	"keywords": [
 		"cli",
-		"bitovi"
+		"bitovi",
+		"schematics"
 	],
+	"schematics": "./src/generators/schematics/collection.json",
 	"dependencies": {
 		"@angular-devkit/core": "^13.2.3",
 		"@angular-devkit/schematics": "^13.2.3",

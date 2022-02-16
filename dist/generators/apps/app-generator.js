@@ -48,21 +48,26 @@ function generateRemote(appOptions) {
     return __awaiter(this, void 0, void 0, function () {
         var projectPath, bitoviConfig, createMainApp, remoteFiles;
         return __generator(this, function (_a) {
-            projectPath = (0, child_process_1.execSync)('pwd').toString().replace(/\n/g, '');
-            bitoviConfig = null;
-            try {
-                bitoviConfig = JSON.parse(JSON.stringify(fs_1.default.readFileSync("".concat(projectPath, "/bi.json")).toString()));
+            switch (_a.label) {
+                case 0:
+                    projectPath = (0, child_process_1.execSync)('pwd').toString().replace(/\n/g, '');
+                    bitoviConfig = null;
+                    try {
+                        bitoviConfig = JSON.parse(JSON.stringify(fs_1.default.readFileSync("".concat(projectPath, "/bi.json")).toString()));
+                    }
+                    catch (e) {
+                        console.error('You are not inside a bitovi project', e);
+                    }
+                    createMainApp = "cd ./apps && ng new ".concat(appOptions.projectName, " --routing --style=").concat(appOptions.style, " --skip-git --skip-install && cd ..");
+                    remoteFiles = "rm -rf ./".concat(appOptions.projectName, "/package.json && rm -rf ./").concat(appOptions.projectName, "/.vscode");
+                    (0, child_process_1.execSync)("".concat(createMainApp, " && ").concat(remoteFiles, " && cd ./apps/").concat(appOptions.projectName, " && ng g @bitovi/bi:bi --port=4201"));
+                    bitoviConfig = JSON.parse(bitoviConfig);
+                    bitoviConfig.apps[appOptions.projectName] = "apps/".concat(appOptions.projectName);
+                    return [4 /*yield*/, (0, workspace_1.writeFile)(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8')];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
             }
-            catch (e) {
-                console.error('You are not inside a bitovi project', e);
-            }
-            createMainApp = "cd ./apps && ng new ".concat(appOptions.projectName, " --routing --style=").concat(appOptions.style, " --skip-git --skip-install && cd ..");
-            remoteFiles = "rm -rf ./".concat(appOptions.projectName, "/package.json && rm -rf ./").concat(appOptions.projectName, "/.vscode");
-            (0, child_process_1.execSync)("".concat(createMainApp, " && ").concat(remoteFiles));
-            bitoviConfig = JSON.parse(bitoviConfig);
-            bitoviConfig.apps[appOptions.projectName] = "apps/".concat(appOptions.projectName);
-            (0, workspace_1.writeFile)(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig), 'utf8');
-            return [2 /*return*/];
         });
     });
 }

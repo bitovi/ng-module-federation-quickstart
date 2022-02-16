@@ -26,7 +26,7 @@ export async function questionsToInitProject(
 	}
 
 	const answers = await inquirer.prompt(questions);
-	console.log(answers);
+
 	return {
 		projectName:
 			args.projectName.length > 0 ? args.projectName : answers.projectName,

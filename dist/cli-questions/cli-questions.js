@@ -68,7 +68,6 @@ function questionsToInitProject(args) {
                     return [4 /*yield*/, inquirer_1.default.prompt(questions)];
                 case 1:
                     answers = _a.sent();
-                    console.log(answers);
                     return [2 /*return*/, {
                             projectName: args.projectName.length > 0 ? args.projectName : answers.projectName,
                             style: acceptedStyles.includes(args.style) ? args.style : answers.style,

@@ -1,0 +1,9 @@
+{
+	"$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
+	"schematics": {
+		"bi": {
+			"description": "A blank schematic.",
+			"factory": "../../../dist/generators/schematics/index#bitovi"
+		}
+	}
+}

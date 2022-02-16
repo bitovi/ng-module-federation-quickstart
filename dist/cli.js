@@ -84,13 +84,15 @@ function cli(args) {
                     (0, generators_1.generateNewWorkspace)(initOptions);
                     return [2 /*return*/];
                 case 2:
-                    if (!(options.remote.length > 0)) return [3 /*break*/, 4];
+                    if (!(options.remote.length > 0)) return [3 /*break*/, 5];
                     return [4 /*yield*/, (0, cli_questions_1.questionsToInitProject)(__assign(__assign({}, options), { projectName: options.remote }))];
                 case 3:
                     appOptions = _a.sent();
-                    (0, generators_1.generateRemote)(appOptions);
-                    _a.label = 4;
-                case 4: return [2 /*return*/];
+                    return [4 /*yield*/, (0, generators_1.generateRemote)(appOptions)];
+                case 4:
+                    _a.sent();
+                    _a.label = 5;
+                case 5: return [2 /*return*/];
             }
         });
     });

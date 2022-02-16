@@ -1,0 +1,10 @@
+{
+	"version": 3,
+	"file": "webpack-config.js",
+	"sourceRoot": "",
+	"sources": [
+		"../../../../src/generators/schematics/webpack/webpack-config.ts"
+	],
+	"names": [],
+	"mappings": ";;;AAAA,IAAM,qBAAqB,GAAG,soEAkF3B,CAAC;AAEG,IAAM,qBAAqB,GAAG,UAAC,UAAkB;IACvD,OAAO,qBAAqB,CAAC,OAAO,CACnC,iBAAiB,EACjB,UAAU,CAAC,QAAQ,EAAE,CACrB,CAAC;AACH,CAAC,CAAC;AALW,QAAA,qBAAqB,yBAKhC"
+}
