@@ -15,6 +15,15 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	const projectPath = path.join(process.cwd(), initOptions.projectName);
 	// fs.exists(path.join(projectPath, 'bi.json'));
 	// import fs methods
+	try {
+		const bitoviConfig = fs.readFileSync(`${process.cwd()}/bi.json`).toString();
+		if (bitoviConfig.length) {
+			console.error('Project already exists');
+			process.exit(1);
+		}
+	} catch (e) {
+		console.log('Creating config');
+	}
 
 	fs.mkdirSync(path.join(projectPath));
 	fs.mkdirSync(path.join(`${projectPath}`, 'apps'));
@@ -64,7 +73,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 
 	try {
 		// install dependencies on root folder
-		execSync(`cd ${projectPath} && npm install`);
+		// execSync(`cd ${projectPath} && npm install`);
 	} catch (e) {
 		console.error(e);
 	}
@@ -88,5 +97,8 @@ async function createGitignore(targetDirectory) {
 	const file = fs.createWriteStream(path.join(targetDirectory, '.gitignore'), {
 		flags: 'a',
 	});
-	writeGitignore();
+	writeGitignore({
+		type: 'Node',
+		file: file,
+	});
 }

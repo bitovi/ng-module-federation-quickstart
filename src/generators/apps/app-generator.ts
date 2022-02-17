@@ -13,23 +13,31 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 		);
 	} catch (e) {
 		console.error('You are not inside a bitovi project', e);
-
-		return;
+		process.exit(1);
 	}
 
 	const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
 	const createdApps = fs.readdirSync(path.join(projectPath, `apps`));
+	const remotePort = `420${createdApps.length + 1}`;
 
+	// run schematics to add remote
 	execSync(
-		`${createMainApp} && cd ${projectPath}/apps/${
-			appOptions.projectName
-		} && ng g @bitovi/bi:bi  --port=420${
-			createdApps.length + 1
-		} --projectName=${appOptions.projectName} --remote`,
+		`${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi  --port=${remotePort} --projectName=${appOptions.projectName} --remote`,
 	);
 	bitoviConfig = JSON.parse(bitoviConfig);
 	bitoviConfig.apps[appOptions.projectName] = `apps/${appOptions.projectName}`;
 
+	// add remote to host app
+	const enterHost = `cd ${projectPath}/apps/${bitoviConfig.host}`;
+	const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${appOptions.projectName} --port=${remotePort} --addRemote`;
+
+	try {
+		execSync(`${enterHost} && ${addRemoteSchematic}`);
+	} catch (e) {
+		console.error(e);
+	}
+
+	// modify project configuration
 	fs.writeFileSync(
 		path.join(projectPath, 'bi.json'),
 		JSON.stringify(bitoviConfig),
