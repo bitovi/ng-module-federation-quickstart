@@ -26,6 +26,7 @@ function parseArgumentsIntoOptions(rawArgs: any) {
 export async function cli(args: any) {
 	let options = parseArgumentsIntoOptions(args);
 
+	// if is initing project
 	if (options.init) {
 		const initOptions = await questionsToInitProject(options);
 		generateNewWorkspace(initOptions);
@@ -33,6 +34,7 @@ export async function cli(args: any) {
 		return;
 	}
 
+	// ig adding new remote
 	if (options.remote.length > 0) {
 		const appOptions = await questionsToInitProject({
 			...options,

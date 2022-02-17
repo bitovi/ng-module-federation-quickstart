@@ -5,6 +5,9 @@ import { generateWebpackConfig } from './webpack';
 // per file.
 export function bitovi(_options: any): Rule {
 	return (tree: Tree, _context: SchematicContext) => {
+		// if port exists, is remote app
+		// add webpack config for module federation
+
 		if (_options.port) {
 			tree.create(
 				'webpack.config.js',
@@ -13,7 +16,6 @@ export function bitovi(_options: any): Rule {
 					projectName: _options.projectName,
 				}),
 			);
-			return removeNoNeededFiles(tree);
 		}
 
 		if (_options.host) {
@@ -24,8 +26,15 @@ export function bitovi(_options: any): Rule {
 					true,
 				),
 			);
-			return removeNoNeededFiles(tree);
 		}
+
+		// add webpack prod config
+		tree.create(
+			'webpack.prod.config.js',
+			"module.exports = require('./webpack.config')",
+		);
+
+		tree = removeNoNeededFiles(tree);
 
 		return tree;
 	};

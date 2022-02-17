@@ -82,11 +82,12 @@ function generateNewWorkspace(initOptions) {
             catch (e) {
                 console.error(e);
             }
-            /* 	try {
-                execSync(`cd ${projectPath} && npm install`);
-            } catch (e) {
+            try {
+                (0, child_process_1.execSync)("cd ".concat(projectPath, " && npm install"));
+            }
+            catch (e) {
                 console.error(e);
-            } */
+            }
             setBitoviConfigurationFile(initOptions.projectName, projectPath);
             createGitignore(projectPath);
             return [2 /*return*/];

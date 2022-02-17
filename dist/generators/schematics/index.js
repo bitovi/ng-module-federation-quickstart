@@ -11,12 +11,12 @@ function bitovi(_options) {
                 port: _options.port,
                 projectName: _options.projectName,
             }));
-            return removeNoNeededFiles(tree);
         }
         if (_options.host) {
             tree.create('webpack.config.js', (0, webpack_1.generateWebpackConfig)({ port: 4200, projectName: _options.projectName }, true));
-            return removeNoNeededFiles(tree);
         }
+        tree.create('webpack.prod.config.js', "module.exports = require('./webpack.config')");
+        tree = removeNoNeededFiles(tree);
         return tree;
     };
 }

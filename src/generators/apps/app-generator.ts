@@ -13,6 +13,8 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 		);
 	} catch (e) {
 		console.error('You are not inside a bitovi project', e);
+
+		return;
 	}
 
 	const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;

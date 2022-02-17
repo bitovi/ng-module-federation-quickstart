@@ -6,7 +6,6 @@ export function generateWebpackConfig(
 	config: IWebpackConfig,
 	isHost = false,
 ): string {
-	console.log('LEGO AL CONG', config);
 	if (isHost) {
 		return webpackHostConfigTemplate.replace(
 			/{{projectName}}/g,

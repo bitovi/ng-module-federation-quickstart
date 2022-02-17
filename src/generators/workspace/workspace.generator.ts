@@ -13,6 +13,8 @@ const writeGitignore = promisify(gitignore.writeFile);
 
 export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	const projectPath = path.join(process.cwd(), initOptions.projectName);
+	// fs.exists(path.join(projectPath, 'bi.json'));
+	// import fs methods
 
 	fs.mkdirSync(path.join(projectPath));
 	fs.mkdirSync(path.join(`${projectPath}`, 'apps'));
@@ -24,6 +26,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	execSync(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
 
 	try {
+		// copy package.json to root folder
 		fs.copyFileSync(
 			path.join(projectPath, `apps/${initOptions.projectName}/package.json`),
 			path.join(projectPath, 'package.json'),
@@ -33,6 +36,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	}
 
 	try {
+		// copy .vscode directory to root folder
 		const filesFromVsCode = fs.readdirSync(
 			path.join(projectPath, `apps/${initOptions.projectName}/.vscode`),
 		);
@@ -47,11 +51,10 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 				path.join(projectPath, `.vscode/${fileFromVsCode}`),
 			);
 		}
-	} catch (e) {
-		console.error(e);
-	}
+	} catch (e) {}
 
 	try {
+		// use custom schematics to tell that our new project is the host app
 		execSync(
 			`cd ${projectPath}/apps/${initOptions.projectName} && ng g @bitovi/bi:bi --projectName=${initOptions.projectName} --host`,
 		);
@@ -60,6 +63,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 	}
 
 	try {
+		// install dependencies on root folder
 		execSync(`cd ${projectPath} && npm install`);
 	} catch (e) {
 		console.error(e);
@@ -84,8 +88,5 @@ async function createGitignore(targetDirectory) {
 	const file = fs.createWriteStream(path.join(targetDirectory, '.gitignore'), {
 		flags: 'a',
 	});
-	writeGitignore({
-		type: 'Node',
-		file: file,
-	});
+	writeGitignore();
 }
