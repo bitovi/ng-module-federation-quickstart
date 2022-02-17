@@ -25,8 +25,9 @@ function parseArgumentsIntoOptions(rawArgs: any) {
 
 export async function cli(args: any) {
 	let options = parseArgumentsIntoOptions(args);
+	console.log('Executing custom command');
 
-	// if is initing project
+	// if initiating project
 	if (options.init) {
 		const initOptions = await questionsToInitProject(options);
 		generateNewWorkspace(initOptions);
