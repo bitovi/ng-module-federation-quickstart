@@ -50,9 +50,21 @@ var templates_1 = require("./templates");
 var writeGitignore = (0, util_1.promisify)(gitignore_1.default.writeFile);
 function generateNewWorkspace(initOptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectPath, goToWorkspace, createMainApp, gitInit, filesFromVsCode, _i, filesFromVsCode_1, fileFromVsCode;
+        var projectPath, bitoviConfig, goToWorkspace, createMainApp, gitInit, filesFromVsCode, _i, filesFromVsCode_1, fileFromVsCode;
         return __generator(this, function (_a) {
             projectPath = path_1.default.join(process_1.default.cwd(), initOptions.projectName);
+            // fs.exists(path.join(projectPath, 'bi.json'));
+            // import fs methods
+            try {
+                bitoviConfig = fs_1.default.readFileSync("".concat(process_1.default.cwd(), "/bi.json")).toString();
+                if (bitoviConfig.length) {
+                    console.error('Project already exists');
+                    process_1.default.exit(1);
+                }
+            }
+            catch (e) {
+                console.log('Creating config');
+            }
             fs_1.default.mkdirSync(path_1.default.join(projectPath));
             fs_1.default.mkdirSync(path_1.default.join("".concat(projectPath), 'apps'));
             goToWorkspace = "cd ".concat(projectPath, "/apps");
@@ -60,6 +72,7 @@ function generateNewWorkspace(initOptions) {
             gitInit = "cd ".concat(projectPath, " && git init");
             (0, child_process_1.execSync)("".concat(goToWorkspace, " && ").concat(createMainApp, " && ").concat(gitInit));
             try {
+                // copy package.json to root folder
                 fs_1.default.copyFileSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/package.json")), path_1.default.join(projectPath, 'package.json'));
             }
             catch (e) {
@@ -73,17 +86,17 @@ function generateNewWorkspace(initOptions) {
                     fs_1.default.copyFileSync(path_1.default.join(projectPath, "apps/".concat(initOptions.projectName, "/.vscode/").concat(fileFromVsCode)), path_1.default.join(projectPath, ".vscode/".concat(fileFromVsCode)));
                 }
             }
-            catch (e) {
-                console.error(e);
-            }
+            catch (e) { }
             try {
+                // use custom schematics to tell that our new project is the host app
                 (0, child_process_1.execSync)("cd ".concat(projectPath, "/apps/").concat(initOptions.projectName, " && ng g @bitovi/bi:bi --projectName=").concat(initOptions.projectName, " --host"));
             }
             catch (e) {
                 console.error(e);
             }
             try {
-                (0, child_process_1.execSync)("cd ".concat(projectPath, " && npm install"));
+                // install dependencies on root folder
+                // execSync(`cd ${projectPath} && npm install`);
             }
             catch (e) {
                 console.error(e);

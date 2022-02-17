@@ -45,7 +45,7 @@ var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 function generateRemote(appOptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectPath, bitoviConfig, createMainApp, createdApps;
+        var projectPath, bitoviConfig, createMainApp, createdApps, remotePort, enterHost, addRemoteSchematic;
         return __generator(this, function (_a) {
             projectPath = path_1.default.join(process.cwd());
             bitoviConfig = null;
@@ -54,12 +54,24 @@ function generateRemote(appOptions) {
             }
             catch (e) {
                 console.error('You are not inside a bitovi project', e);
+                process.exit(1);
             }
             createMainApp = "cd ".concat(projectPath, "/apps && ng new ").concat(appOptions.projectName, " --routing --style=").concat(appOptions.style, " --skip-git --skip-install && cd ..");
             createdApps = fs_1.default.readdirSync(path_1.default.join(projectPath, "apps"));
-            (0, child_process_1.execSync)("".concat(createMainApp, " && cd ").concat(projectPath, "/apps/").concat(appOptions.projectName, " && ng g @bitovi/bi:bi  --port=420").concat(createdApps.length + 1, " --projectName=").concat(appOptions.projectName, " --remote"));
+            remotePort = "420".concat(createdApps.length + 1);
+            // run schematics to add remote
+            (0, child_process_1.execSync)("".concat(createMainApp, " && cd ").concat(projectPath, "/apps/").concat(appOptions.projectName, " && ng g @bitovi/bi:bi  --port=").concat(remotePort, " --projectName=").concat(appOptions.projectName, " --remote"));
             bitoviConfig = JSON.parse(bitoviConfig);
             bitoviConfig.apps[appOptions.projectName] = "apps/".concat(appOptions.projectName);
+            enterHost = "cd ".concat(projectPath, "/apps/").concat(bitoviConfig.host);
+            addRemoteSchematic = "ng g @bitovi/bi:bi --projectName=".concat(appOptions.projectName, " --port=").concat(remotePort, " --addRemote");
+            try {
+                (0, child_process_1.execSync)("".concat(enterHost, " && ").concat(addRemoteSchematic));
+            }
+            catch (e) {
+                console.error(e);
+            }
+            // modify project configuration
             fs_1.default.writeFileSync(path_1.default.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
             return [2 /*return*/];
         });
