@@ -1,4 +1,4 @@
-import { execSync, exec } from 'child_process';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import { IQuestionInit } from '../../cli-questions';
 import path from 'path';
@@ -9,7 +9,7 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 
 	try {
 		bitoviConfig = JSON.parse(
-			JSON.stringify(fs.readFileSync(`${projectPath}/bi.json`).toString()),
+			fs.readFileSync(`${projectPath}/bi.json`).toString(),
 		);
 	} catch (e) {
 		console.error('You are not inside a bitovi project', e);
@@ -17,15 +17,20 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 	}
 
 	const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
-	const createdApps = fs.readdirSync(path.join(projectPath, `apps`));
-	const remotePort = `420${createdApps.length + 1}`;
+	const ports: number[] = Object.keys(bitoviConfig.apps).map(
+		(app) => bitoviConfig.apps[app].port as number,
+	);
+	const remotePort = Math.max(...ports) + 1;
 
 	// run schematics to add remote
 	execSync(
 		`${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi  --port=${remotePort} --projectName=${appOptions.projectName} --remote`,
 	);
-	bitoviConfig = JSON.parse(bitoviConfig);
-	bitoviConfig.apps[appOptions.projectName] = `apps/${appOptions.projectName}`;
+	bitoviConfig.apps[appOptions.projectName] = {};
+	bitoviConfig.apps[
+		appOptions.projectName
+	].path = `apps/${appOptions.projectName}`;
+	bitoviConfig.apps[appOptions.projectName].port = remotePort;
 
 	// add remote to host app
 	const enterHost = `cd ${projectPath}/apps/${bitoviConfig.host}`;

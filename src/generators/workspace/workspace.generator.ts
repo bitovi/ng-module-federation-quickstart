@@ -73,18 +73,26 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 
 	try {
 		// install dependencies on root folder
-		// execSync(`cd ${projectPath} && npm install`);
+		execSync(
+			`cd ${projectPath} && npm install && npm install @angular-architects/module-federation && npm install @angular-builders/custom-webpack`,
+		);
 	} catch (e) {
 		console.error(e);
 	}
 
-	setBitoviConfigurationFile(initOptions.projectName, projectPath);
+	setBitoviConfigurationFile(initOptions.projectName, projectPath, 4200);
 	createGitignore(projectPath);
 }
 
-function setBitoviConfigurationFile(projectName: string, projectPath: string) {
+function setBitoviConfigurationFile(
+	projectName: string,
+	projectPath: string,
+	port: number,
+) {
 	const bitoviConfig = JSON.parse(bitoviConfigTemplate);
-	bitoviConfig.apps[projectName] = `apps/${projectName}`;
+	bitoviConfig.apps[projectName] = {};
+	bitoviConfig.apps[projectName].path = `apps/${projectName}`;
+	bitoviConfig.apps[projectName].port = port;
 	bitoviConfig.host = projectName;
 
 	fs.writeFileSync(

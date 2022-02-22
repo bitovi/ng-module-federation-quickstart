@@ -24,7 +24,7 @@ export function bitovi(_options: any): Rule {
 
 				newRemotes[
 					_options.projectName
-				] = `http://localhost:${_options.port}/remoteEntry.js`;
+				] = `${_options.projectName}@http://localhost:${_options.port}/remoteEntry.js`;
 
 				const newConfig = webpackConfig.replace(
 					remotesRegex,
@@ -72,7 +72,14 @@ export function bitovi(_options: any): Rule {
 			"module.exports = require('./webpack.config')",
 		);
 
+		const mainContent: string = tree.get('src/main.ts').content.toString();
+		const bootstrapContent = `import('./bootstrap').catch((err) => console.error(err));`;
+
+		tree.create('src/bootstrap.ts', mainContent);
+		tree.overwrite('src/main.ts', bootstrapContent);
+
 		tree = removeNoNeededFiles(tree);
+		tree = useCustomWebpack(tree, _options.projectName);
 
 		return tree;
 	};
@@ -84,5 +91,29 @@ function removeNoNeededFiles(tree: Tree): Tree {
 	tree.delete('.gitignore');
 	tree.delete('.editorconfig');
 
+	return tree;
+}
+
+function useCustomWebpack(tree: Tree, projectName: string): Tree {
+	const angularConfig = JSON.parse(tree.get('angular.json').content.toString());
+	angularConfig.projects[
+		projectName
+	].architect.build.options.customWebpackConfig = {
+		path: './webpack.prod.config.js',
+		replaceDuplicatePlugins: true,
+	};
+
+	angularConfig.projects[projectName].architect.build.builder =
+		'@angular-builders/custom-webpack:browser';
+
+	angularConfig.projects[
+		projectName
+	].architect.serve.configurations.extraWebpackConfig = {
+		path: './webpack.config.js',
+	};
+	angularConfig.projects[projectName].architect.serve.builder =
+		'@angular-builders/custom-webpack:dev-server';
+
+	tree.overwrite('angular.json', JSON.stringify(angularConfig));
 	return tree;
 }

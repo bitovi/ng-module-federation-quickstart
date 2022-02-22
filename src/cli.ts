@@ -1,7 +1,6 @@
 import arg from 'arg';
 import { questionsToInitProject } from './cli-questions';
 import { generateNewWorkspace, generateRemote } from './generators';
-import { execSync } from 'child_process';
 
 function parseArgumentsIntoOptions(rawArgs: any) {
 	const args = arg(
