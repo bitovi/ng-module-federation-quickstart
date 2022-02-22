@@ -1,7 +1,7 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { generateWebpackConfig } from './webpack';
 
-const remotesRegex = /remotes[:\s{\tA-Za-z0-9\'\"\/\n.]{1,}}/;
+const remotesRegex = /remotes[:\s{\tA-Za-z0-9\'\"\/\n.@]{1,}}/;
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
