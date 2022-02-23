@@ -1,4 +1,4 @@
 export interface IWebpackConfig {
-	projectName?: string;
-	port?: number;
+  projectName?: string;
+  port?: number;
 }

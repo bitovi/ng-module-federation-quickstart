@@ -1,9 +1,9 @@
 {
-	"$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
-	"schematics": {
-		"bi": {
-			"description": "Creates new app",
-			"factory": "../../../dist/generators/schematics/index#bitovi"
-		}
-	}
+  "$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "bi": {
+      "description": "Creates new app",
+      "factory": "../../../dist/generators/schematics/index#bitovi"
+    }
+  }
 }
