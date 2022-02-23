@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "dist/cli.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"ng": "ng",
+		"test": "ng test",
 		"build": "tsc"
 	},
 	"bin": "bin/bitovi-project",
@@ -39,6 +40,7 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"@types/inquirer": "^8.2.0"
+		"@types/inquirer": "^8.2.0",
+		"@types/jest": "^27.4.1"
 	}
 }
