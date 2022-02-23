@@ -1,0 +1,15 @@
+package.json
+package-lock.json
+yarn.lock
+dist
+www
+src/assets/
+**/.DS_Store
+resources
+docker
+.idea
+node_modules
+LICENSE
+lib
+tsconfig.**
+firebase
