@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
-import { bitoviConfigTemplate } from './templates';
+import { IApp, IBitoviConfig } from './templates';
 
 const writeGitignore = promisify(gitignore.writeFile);
 
@@ -82,11 +82,15 @@ export async function generateNewWorkspace(initOptions: IQuestionInit) {
 }
 
 function setBitoviConfigurationFile(projectName: string, projectPath: string, port: number) {
-  const bitoviConfig = JSON.parse(bitoviConfigTemplate);
-  bitoviConfig.apps[projectName] = {};
-  bitoviConfig.apps[projectName].path = `apps/${projectName}`;
-  bitoviConfig.apps[projectName].port = port;
-  bitoviConfig.host = projectName;
+  const newProject: IApp = {
+    path: `apps/${projectName}`,
+    port,
+  };
+  const bitoviConfig: IBitoviConfig = {
+    version: '1.0.0',
+    apps: { newProject },
+    host: projectName,
+  };
 
   fs.writeFileSync(path.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
 }

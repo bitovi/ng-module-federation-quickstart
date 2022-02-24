@@ -4,6 +4,10 @@
     "bi": {
       "description": "Creates new app",
       "factory": "../../../dist/generators/schematics/index#bitovi"
+    },
+    "sample": {
+      "description": "Creates module federation sample",
+      "factory": "../../../dist/generators/schematics/sample#sample"
     }
   }
 }

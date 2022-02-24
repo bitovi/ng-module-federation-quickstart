@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import { IQuestionInit } from '../../cli-questions';
 import path from 'path';
+import { IApp } from '../workspace/templates';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   const projectPath = path.join(process.cwd());
@@ -23,15 +24,21 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 
   // run schematics to add remote
   execSync(
-    `${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi  --port=${remotePort} --projectName=${appOptions.projectName} --remote`
+    `${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`
   );
-  bitoviConfig.apps[appOptions.projectName] = {};
-  bitoviConfig.apps[appOptions.projectName].path = `apps/${appOptions.projectName}`;
-  bitoviConfig.apps[appOptions.projectName].port = remotePort;
+
+  execSync(
+    `cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:sample --remote=true --port=${remotePort} --modify=false`
+  );
+  const newProject: IApp = {
+    path: `apps/${appOptions.projectName}`,
+    port: remotePort,
+  };
+  bitoviConfig.apps[appOptions.projectName] = newProject;
 
   // add remote to host app
   const enterHost = `cd ${projectPath}/apps/${bitoviConfig.host}`;
-  const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${appOptions.projectName} --port=${remotePort} --addRemote`;
+  const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${appOptions.projectName} --port=${remotePort} --addRemote=true --sample=true && ng g @bitovi/bi:sample --host=true --modify=true --port=${remotePort}`;
 
   try {
     execSync(`${enterHost} && ${addRemoteSchematic}`);
