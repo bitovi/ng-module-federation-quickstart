@@ -1,31 +1,38 @@
 import { execSync } from 'child_process';
-import fs from 'fs';
-import { IQuestionInit } from '../../cli-questions';
-import path from 'path';
-import { IApp } from '../workspace/templates';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
+import { IQuestionInit, log } from '../../core';
+import { IApp, IBitoviConfig } from '../../core/interfaces/bitovi-config.interface';
+import { getExistingBiConfig } from '../workspace';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
-  const projectPath = path.join(process.cwd());
-  let bitoviConfig = null;
+  const projectPath: string = join(process.cwd());
+  let bitoviConfig: IBitoviConfig = getExistingBiConfig();
+
+  // create remote app
+  const enterPath = `cd ${projectPath}/apps`;
+  const generateRemote = `ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install`;
 
   try {
-    bitoviConfig = JSON.parse(fs.readFileSync(`${projectPath}/bi.json`).toString());
-  } catch (e) {
-    console.error('You are not inside a bitovi project', e);
+    execSync(`${enterPath} && ${generateRemote}`);
+    log.success('Generated remote app');
+  } catch (error) {
+    log.error('There was an error generating yor remote app');
+    console.error(error);
     process.exit(1);
   }
 
-  const createMainApp = `cd ${projectPath}/apps && ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install && cd ..`;
+  // modify remote to have custom webpack configuration
+  const remotePort: number = getNextPort(bitoviConfig);
+  const enterRemote = `cd ${projectPath}/apps/${appOptions.projectName}`;
+  const modifyRemote = ` ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`;
 
-  const ports: number[] = Object.keys(bitoviConfig.apps).map(
-    (app) => bitoviConfig.apps[app].port as number
-  );
-  const remotePort = Math.max(...ports) + 1;
-
-  // run schematics to add remote
-  execSync(
-    `${createMainApp} && cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`
-  );
+  try {
+    execSync(`${enterRemote} && ${modifyRemote}`);
+    log.success('Remote set successfully');
+  } catch (error) {
+    log.error('There was an error trying to set webpack on remote app');
+  }
 
   execSync(
     `cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:sample --remote=true --port=${remotePort} --modify=false`
@@ -47,5 +54,14 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   }
 
   // modify project configuration
-  fs.writeFileSync(path.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
+  writeFileSync(join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
+}
+
+function getNextPort(bitoviConfig: IBitoviConfig): number {
+  const ports: number[] = Object.keys(bitoviConfig.apps).map(
+    (app) => bitoviConfig.apps[app].port as number
+  );
+  const nextPort = Math.max(...ports) + 1;
+
+  return nextPort;
 }
