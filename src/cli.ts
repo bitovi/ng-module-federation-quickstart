@@ -1,8 +1,10 @@
 import arg from 'arg';
 import { questionsToInitProject } from './cli-questions';
+import { IQuestionInit } from './core';
+import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote } from './generators';
 
-function parseArgumentsIntoOptions(rawArgs: any) {
+function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
   const args = arg(
     {
       '--init': Boolean,
@@ -22,25 +24,30 @@ function parseArgumentsIntoOptions(rawArgs: any) {
   };
 }
 
-export async function cli(args: any) {
-  let options = parseArgumentsIntoOptions(args);
+export async function cli(args: any): Promise<void> {
+  let options: ICliParams = parseArgumentsIntoOptions(args);
   console.log('Executing custom command');
 
   // if initiating project
   if (options.init) {
-    const initOptions = await questionsToInitProject(options);
-    generateNewWorkspace(initOptions);
+    let initProjectOptions: IQuestionInit = {
+      projectName: options.projectName,
+      style: options.style,
+    };
+    initProjectOptions = await questionsToInitProject(initProjectOptions);
+    generateNewWorkspace(initProjectOptions);
 
     return;
   }
 
   // ig adding new remote
   if (options.remote.length > 0) {
-    const appOptions = await questionsToInitProject({
-      ...options,
-      projectName: options.remote,
-    });
+    let initRemoteOptions: IQuestionInit = {
+      projectName: options.projectName,
+      style: options.style,
+    };
+    initRemoteOptions = await questionsToInitProject(initRemoteOptions);
 
-    await generateRemote(appOptions);
+    await generateRemote(initRemoteOptions);
   }
 }

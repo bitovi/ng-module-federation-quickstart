@@ -1,106 +1,68 @@
-import { IQuestionInit } from '../../cli-questions';
-import { execSync, exec } from 'child_process';
-import gitignore from 'gitignore';
+import { execSync } from 'child_process';
 
-import { promisify } from 'util';
-import fs from 'fs';
-import path from 'path';
+import { mkdirSync } from 'fs';
+import { join } from 'path';
 import process from 'process';
+import { ConsoleColor, IQuestionInit, log } from '../../core';
+import {
+  checkBiConfig,
+  copyInitialAngularFiles,
+  createGitignore,
+  setBitoviConfigurationFile,
+} from './init-process';
 
-import { IApp, IBitoviConfig } from './templates';
+export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<void> {
+  const projectPath: string = join(process.cwd(), initOptions.projectName);
 
-const writeGitignore = promisify(gitignore.writeFile);
+  checkBiConfig();
 
-export async function generateNewWorkspace(initOptions: IQuestionInit) {
-  const projectPath = path.join(process.cwd(), initOptions.projectName);
-  // fs.exists(path.join(projectPath, 'bi.json'));
-  // import fs methods
-  try {
-    const bitoviConfig = fs.readFileSync(`${process.cwd()}/bi.json`).toString();
-    if (bitoviConfig.length) {
-      console.error('Project already exists');
-      process.exit(1);
-    }
-  } catch (e) {
-    console.log('Creating config');
-  }
+  // Creating workspace
+  mkdirSync(join(projectPath));
+  mkdirSync(join(`${projectPath}`, 'apps'));
 
-  fs.mkdirSync(path.join(projectPath));
-  fs.mkdirSync(path.join(`${projectPath}`, 'apps'));
-
+  // generate host Angular App
   const goToWorkspace = `cd ${projectPath}/apps`;
   const createMainApp = `ng new ${initOptions.projectName} --routing --style=${initOptions.style} --skip-git --skip-install`;
   const gitInit = `cd ${projectPath} && git init`;
 
   execSync(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
 
+  // copy initial angular files to project's root folder
+  copyInitialAngularFiles(projectPath, initOptions.projectName);
+
+  // use custom schematics to modify initial app to have host config
   try {
-    // copy package.json to root folder
-    fs.copyFileSync(
-      path.join(projectPath, `apps/${initOptions.projectName}/package.json`),
-      path.join(projectPath, 'package.json')
-    );
-  } catch (e) {
-    console.error(e);
+    const enterFolder = `cd ${projectPath}/apps/${initOptions.projectName}`;
+    const setHostConfig = `ng g @bitovi/bi:bi --projectName=${initOptions.projectName} --host`;
+
+    execSync(`${enterFolder} && ${setHostConfig}`);
+
+    log.success('Host config set successfully');
+  } catch (error) {
+    log.error("Couldn't modify angular app to have ");
+    console.error(error);
   }
 
-  try {
-    // copy .vscode directory to root folder
-    const filesFromVsCode = fs.readdirSync(
-      path.join(projectPath, `apps/${initOptions.projectName}/.vscode`)
-    );
-    fs.mkdirSync(path.join(projectPath, `.vscode`));
-
-    for (let fileFromVsCode of filesFromVsCode) {
-      fs.copyFileSync(
-        path.join(projectPath, `apps/${initOptions.projectName}/.vscode/${fileFromVsCode}`),
-        path.join(projectPath, `.vscode/${fileFromVsCode}`)
-      );
-    }
-  } catch (e) {}
+  // install dependencies on root folder
+  const enterRootFolder = `cd ${projectPath}`;
+  const installInitialPackages = `npm install`;
+  const installModuleFederation = 'npm install @angular-architects/module-federation';
+  const installCustomWebpack = 'npm install @angular-builders/custom-webpack';
 
   try {
-    // use custom schematics to tell that our new project is the host app
     execSync(
-      `cd ${projectPath}/apps/${initOptions.projectName} && ng g @bitovi/bi:bi --projectName=${initOptions.projectName} --host`
+      `${enterRootFolder} && ${installInitialPackages} && ${installModuleFederation} && ${installCustomWebpack}`
     );
-  } catch (e) {
-    console.error(e);
-  }
-
-  try {
-    // install dependencies on root folder
-    execSync(
-      `cd ${projectPath} && npm install && npm install @angular-architects/module-federation && npm install @angular-builders/custom-webpack`
+    log.success('Packages installed');
+  } catch (error) {
+    log.error('There was an error trying to install packages');
+    log.color(
+      ConsoleColor.FgCyan,
+      `\t --> Run later: ${installInitialPackages} && ${installModuleFederation} && ${installCustomWebpack}`
     );
-  } catch (e) {
-    console.error(e);
+    console.error(error);
   }
 
   setBitoviConfigurationFile(initOptions.projectName, projectPath, 4200);
-  createGitignore(projectPath);
-}
-
-function setBitoviConfigurationFile(projectName: string, projectPath: string, port: number) {
-  const newProject: IApp = {
-    path: `apps/${projectName}`,
-    port,
-  };
-  const bitoviConfig: IBitoviConfig = {
-    version: '1.0.0',
-    apps: { newProject },
-    host: projectName,
-  };
-
-  fs.writeFileSync(path.join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
-}
-
-async function createGitignore(targetDirectory) {
-  const file = fs.createWriteStream(path.join(targetDirectory, '.gitignore'), {
-    flags: 'a',
-  });
-  writeGitignore({
-    type: 'Node',
-    file: file,
-  });
+  await createGitignore(projectPath);
 }

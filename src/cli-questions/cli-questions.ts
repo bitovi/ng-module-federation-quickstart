@@ -1,8 +1,8 @@
 import inquirer, { QuestionCollection } from 'inquirer';
-import { IQuestionInit } from './cli-questions.interface';
+import { AngularAcceptedStyles, IQuestionInit } from '../core';
 
 export async function questionsToInitProject(args: IQuestionInit): Promise<IQuestionInit> {
-  const acceptedStyles = ['css', 'scss'];
+  const acceptedStyles: string[] = Object.values(AngularAcceptedStyles);
   const questions: QuestionCollection<any>[] = [];
 
   if (args.projectName.length <= 0) {
@@ -23,7 +23,7 @@ export async function questionsToInitProject(args: IQuestionInit): Promise<IQues
     });
   }
 
-  const answers = await inquirer.prompt(questions);
+  const answers: Partial<IQuestionInit> = await inquirer.prompt(questions);
 
   return {
     projectName: args.projectName.length > 0 ? args.projectName : answers.projectName,
