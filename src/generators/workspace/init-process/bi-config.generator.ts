@@ -1,7 +1,7 @@
-import { IApp, IBitoviConfig } from '../templates';
 import { join } from 'path';
 import { writeFileSync } from 'fs';
 import { log } from '../../../core';
+import { IApp, IBitoviConfig } from '../../../core/interfaces/bitovi-config.interface';
 
 export function setBitoviConfigurationFile(projectName: string, projectPath: string, port: number) {
   const newProject: IApp = {
