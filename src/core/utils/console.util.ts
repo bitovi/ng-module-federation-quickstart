@@ -13,6 +13,9 @@ export const log = {
   error: (message: string): void => {
     console.log(`${ConsoleColor.FgRed}%s${ConsoleColor.Reset}`, `${logSymbols.error} ${message}`);
   },
+  info: (message: string): void => {
+    console.log(`${ConsoleColor.FgBlue}%s${ConsoleColor.Reset}`, `${logSymbols.info} ${message}`);
+  },
 };
 
 function isUnicodeSupported(): boolean {
