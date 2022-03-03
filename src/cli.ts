@@ -3,6 +3,7 @@ import { questionsToInitProject } from './cli-questions';
 import { IQuestionInit } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote } from './generators';
+import { serve } from './scripts';
 
 function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
   const args = arg(
@@ -11,6 +12,7 @@ function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
       '--project': String,
       '--style': String,
       '--remote': String,
+      '--serveAll': Boolean,
     },
     {
       argv: rawArgs.slice(2),
@@ -21,12 +23,20 @@ function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
     projectName: args['--project'] || '',
     style: args['--project'] || '',
     remote: args['--remote'] || '',
+    serveAll: args['--serveAll'] || false,
   };
 }
 
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
   console.log('Executing custom command');
+
+  // if serveAll
+  if (options.serveAll) {
+    serve(process.cwd());
+
+    return;
+  }
 
   // if initiating project
   if (options.init) {

@@ -3,4 +3,5 @@ export interface ICliParams {
   projectName?: string;
   style?: string;
   remote?: string;
+  serveAll?: boolean;
 }
