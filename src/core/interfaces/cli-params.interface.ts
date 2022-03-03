@@ -4,4 +4,5 @@ export interface ICliParams {
   style?: string;
   remote?: string;
   serveAll?: boolean;
+  serve?: string;
 }

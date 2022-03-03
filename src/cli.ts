@@ -13,6 +13,7 @@ function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
       '--style': String,
       '--remote': String,
       '--serveAll': Boolean,
+      '--serve': String,
     },
     {
       argv: rawArgs.slice(2),
@@ -24,6 +25,7 @@ function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
     style: args['--project'] || '',
     remote: args['--remote'] || '',
     serveAll: args['--serveAll'] || false,
+    serve: args['--serve'] || '',
   };
 }
 
@@ -35,6 +37,14 @@ export async function cli(args: any): Promise<void> {
   if (options.serveAll) {
     const workspace: IBiWorkspace = getExistingBiConfig();
     serve(workspace.rootPath);
+
+    return;
+  }
+
+  // if serving one project
+  if (options.serve) {
+    const workspace: IBiWorkspace = getExistingBiConfig();
+    serve(workspace.rootPath, options.serve);
 
     return;
   }
@@ -51,7 +61,7 @@ export async function cli(args: any): Promise<void> {
     return;
   }
 
-  // ig adding new remote
+  // if adding new remote
   if (options.remote.length > 0) {
     let initRemoteOptions: IQuestionInit = {
       projectName: options.remote,

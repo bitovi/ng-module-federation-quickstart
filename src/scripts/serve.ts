@@ -2,33 +2,44 @@ import { spawn } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { log } from '../core';
-import { IBitoviConfig } from '../core/interfaces/bitovi-config.interface';
+import { IApp, IBitoviConfig } from '../core/interfaces/bitovi-config.interface';
 
-export function serve(workspacePath: string) {
+export function serve(workspacePath: string, project?: string) {
   const biConfigPath: string = join(workspacePath, 'bi.json');
   const biConfig: IBitoviConfig = JSON.parse(readFileSync(biConfigPath, 'utf-8'));
 
-  const allApps = Object.keys(biConfig.apps);
+  let allApps = Object.keys(biConfig.apps);
 
-  for (const appToRun of allApps) {
-    const appProperties = biConfig.apps[appToRun];
-    const isHost = biConfig.host === appToRun;
-
-    const appPath = join(workspacePath, appProperties.path);
-
-    let commandToRun = `cd ${appPath} && ng serve --port=${appProperties.port}`;
-
-    if (!isHost) {
-      commandToRun += ' --liveReload=false';
+  if (project) {
+    if (!allApps.includes(project)) {
+      log.error('The project specified does not exist');
+      process.exit(1);
     }
 
-    log.info(`Running ${appToRun} at http://locahost:${appProperties.port}`);
+    allApps = [project];
+  }
 
-    runStreamed(commandToRun);
+  for (const appToRun of allApps) {
+    const isHost = biConfig.host === appToRun;
+    const appProperties: IApp = biConfig.apps[appToRun];
+    serveApp(workspacePath, appProperties, isHost);
+
+    log.info(`Running ${appToRun} at http://locahost:${appProperties.port}`);
   }
 }
 
-async function runStreamed(command, args?: any[]) {
+function serveApp(workspacePath: string, appProperties: IApp, isHost = false): Promise<any> {
+  const appPath = join(workspacePath, appProperties.path);
+  let commandToRun = `cd ${appPath} && ng serve --port=${appProperties.port}`;
+
+  if (!isHost) {
+    commandToRun += ' --liveReload=false';
+  }
+
+  return runStreamed(commandToRun);
+}
+
+async function runStreamed(command, args?: any[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const options: { stdio?: any; isSilent?: any; shouldThrowOnError?: any } = {};
 
