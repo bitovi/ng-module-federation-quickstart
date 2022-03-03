@@ -1,15 +1,16 @@
 import { Tree } from '@angular-devkit/schematics';
+import { parseToObject } from '../../core';
 
-const remotesRegex = /remotes[:\s{\tA-Za-z0-9\'\"\/\n.@]{1,}}/;
+const remotesRegex = /remotes[:\s\{\tA-Za-z0-9\'\"\/\n.@,]{1,}\}/;
 
 export function addRemote(tree: Tree, _options: any): Tree {
-  const webpackConfig = tree.get('webpack.config.js').content.toString();
-  const remotes = webpackConfig
+  let webpackConfig = tree.get('webpack.config.js').content.toString();
+  const remotes: string = webpackConfig
     .match(remotesRegex)[0]
     .replace(/remotes[\s\t\n]{0,}:/, '')
-    .replace(/[\n\s\t]/g, '');
+    .replace(/[\n\s\t\{\}]/g, '');
 
-  const newRemotes = JSON.parse(remotes) === '{}' ? {} : JSON.parse(remotes);
+  const newRemotes = parseToObject(remotes);
 
   newRemotes[
     _options.projectName

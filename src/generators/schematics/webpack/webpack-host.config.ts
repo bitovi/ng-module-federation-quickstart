@@ -59,7 +59,6 @@ module.exports = {
 					includeSecondaries: true,
 				},
 			}),
-			library: { type: 'var', name: 'firstRemote' },
 		}),
 		sharedMappings.getPlugin(),
 	],
