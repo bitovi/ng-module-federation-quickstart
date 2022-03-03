@@ -1,18 +1,44 @@
-import { IBitoviConfig } from '../../core/interfaces/bitovi-config.interface';
-import { readFileSync } from 'fs';
+import { IBitoviConfig, IBiWorkspace, log } from '../../core';
+import { existsSync, readFileSync } from 'fs';
+import { normalize } from 'path';
 
-export function getExistingBiConfig(): IBitoviConfig {
-  const projectPath: string = process.cwd();
-  let bitoviConfig: IBitoviConfig;
+export function getExistingBiConfig(): IBiWorkspace {
+  let commandPath: string = process.cwd();
 
-  try {
-    bitoviConfig = JSON.parse(readFileSync(`${projectPath}/bi.json`).toString());
-
-    return bitoviConfig;
-  } catch (e) {
-    console.error('You are not inside a bitovi project', e);
-    process.exit(1);
+  if (!existsSync(`${commandPath}/bi.json`)) {
+    commandPath = searchBiWorkspaceRoot();
   }
 
-  return null;
+  try {
+    const bitoviConfig: IBitoviConfig = JSON.parse(
+      readFileSync(`${commandPath}/bi.json`).toString()
+    );
+
+    const workspaceConfig: IBiWorkspace = {
+      biConfig: bitoviConfig,
+      rootPath: commandPath,
+    };
+
+    return workspaceConfig;
+  } catch (error) {
+    log.error('There was an error trying to read workspace configuration');
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+function searchBiWorkspaceRoot(): string {
+  const commandPath = normalize(process.cwd()).split('/');
+
+  for (const folder of commandPath) {
+    commandPath.pop();
+    const upperPath: string = commandPath.join('/');
+
+    if (existsSync(`${upperPath}/bi.json`)) {
+      return upperPath;
+    }
+  }
+
+  log.error('You are not in a bitovi project');
+  process.exit(1);
 }

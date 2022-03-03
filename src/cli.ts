@@ -1,8 +1,8 @@
 import arg from 'arg';
 import { questionsToInitProject } from './cli-questions';
-import { IQuestionInit } from './core';
+import { IBiWorkspace, IQuestionInit, log } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
-import { generateNewWorkspace, generateRemote } from './generators';
+import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
 import { serve } from './scripts';
 
 function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
@@ -29,11 +29,12 @@ function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
 
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
-  console.log('Executing custom command');
+  log.info('Executing custom command');
 
   // if serveAll
   if (options.serveAll) {
-    serve(process.cwd());
+    const workspace: IBiWorkspace = getExistingBiConfig();
+    serve(workspace.rootPath);
 
     return;
   }

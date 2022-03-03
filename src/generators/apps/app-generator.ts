@@ -1,13 +1,14 @@
 import { execSync } from 'child_process';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { IQuestionInit, log } from '../../core';
+import { IBiWorkspace, IQuestionInit, log } from '../../core';
 import { IApp, IBitoviConfig } from '../../core/interfaces/bitovi-config.interface';
 import { getExistingBiConfig } from '../workspace';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
-  const projectPath: string = join(process.cwd());
-  let bitoviConfig: IBitoviConfig = getExistingBiConfig();
+  const workspace = getExistingBiConfig();
+  const projectPath: string = workspace.rootPath;
+  let bitoviConfig: IBitoviConfig = workspace.biConfig;
 
   // create remote app
   const enterPath = `cd ${projectPath}/apps`;
