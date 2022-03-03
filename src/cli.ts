@@ -53,7 +53,7 @@ export async function cli(args: any): Promise<void> {
   // ig adding new remote
   if (options.remote.length > 0) {
     let initRemoteOptions: IQuestionInit = {
-      projectName: options.projectName,
+      projectName: options.remote,
       style: options.style,
     };
     initRemoteOptions = await questionsToInitProject(initRemoteOptions);
