@@ -1,33 +1,8 @@
-import arg from 'arg';
 import { questionsToInitProject } from './cli-questions';
-import { IBiWorkspace, IQuestionInit, log } from './core';
+import { IBiWorkspace, IQuestionInit, log, parseArgumentsIntoOptions } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
 import { serve } from './scripts';
-
-function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
-  const args = arg(
-    {
-      '--init': Boolean,
-      '--project': String,
-      '--style': String,
-      '--remote': String,
-      '--serveAll': Boolean,
-      '--serve': String,
-    },
-    {
-      argv: rawArgs.slice(2),
-    }
-  );
-  return {
-    init: args['--init'] || false,
-    projectName: args['--project'] || '',
-    style: args['--project'] || '',
-    remote: args['--remote'] || '',
-    serveAll: args['--serveAll'] || false,
-    serve: args['--serve'] || '',
-  };
-}
 
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
