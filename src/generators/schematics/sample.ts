@@ -37,11 +37,6 @@ const routes: Routes = [
 export class AppRoutingModule {}`;
 
 const newAppModule = `
-import { loadRemoteModule } from '@angular-architects/module-federation';
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
-const routes: Routes = [
 	{
 		path: 'remote',
 		loadChildren: () =>
@@ -50,23 +45,22 @@ const routes: Routes = [
 				remoteEntry: 'http://localhost:{{port}}/remoteEntry.js',
 				exposedModule: 'RemoteModule',
 			}).then((m) => m.RemoteModule),
-	},
-];
-
-@NgModule({
-	imports: [RouterModule.forRoot(routes)],
-	exports: [RouterModule],
-})
-export class AppRoutingModule {}
-`;
+	}`;
+const routesRegex = /const routes[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\]/;
+const singleRouteRegex = /\{[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\}/;
 
 export function sample(_options: any): Rule {
   return (tree: Tree, _context: SchematicContext) => {
     if (_options.host && _options.modify) {
-      tree.overwrite(
+      const oldRouterModule: string = tree.get('src/app/app-routing.module.ts').content.toString();
+      const allRoutes = oldRouterModule.match(routesRegex)[0];
+      const routes = allRoutes.match(singleRouteRegex);
+      console.log(routes);
+
+      /*   tree.overwrite(
         'src/app/app-routing.module.ts',
         newAppModule.replace(/\{\{port\}\}/, _options.port)
-      );
+      ); */
 
       return tree;
     }
