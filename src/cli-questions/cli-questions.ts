@@ -5,7 +5,7 @@ export async function questionsToInitProject(args: IQuestionInit): Promise<IQues
   const acceptedStyles: string[] = Object.values(AngularAcceptedStyles);
   const questions: QuestionCollection<any>[] = [];
 
-  if (args.projectName.length <= 0) {
+  if (args.projectName?.length <= 0) {
     questions.push({
       type: 'input',
       name: 'projectName',
