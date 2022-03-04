@@ -14,6 +14,7 @@ import {
 export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<void> {
   const projectPath: string = join(process.cwd(), initOptions.projectName);
 
+  // check if already exists a bitovi project in the folder
   checkBiConfig();
 
   // Creating workspace
@@ -39,7 +40,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
 
     log.success('Host config set successfully');
   } catch (error) {
-    log.error("Couldn't modify angular app to have ");
+    log.error("Couldn't modify angular app to have host config");
     console.error(error);
   }
 
@@ -62,7 +63,7 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
     );
     console.error(error);
   }
-
+  // set initial configuration
   setBitoviConfigurationFile(initOptions.projectName, projectPath, 4200);
   await createGitignore(projectPath);
 }

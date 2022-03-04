@@ -3,7 +3,7 @@
   "schematics": {
     "bi": {
       "description": "Creates new app",
-      "factory": "../../../dist/generators/schematics/index#bitovi"
+      "factory": "../../../dist/generators/schematics/bi#bitovi"
     },
     "sample": {
       "description": "Creates module federation sample",

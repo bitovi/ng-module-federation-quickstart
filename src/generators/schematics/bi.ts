@@ -35,7 +35,7 @@ export function bitovi(_options: any): Rule {
 
     // add webpack prod config
     tree.create('webpack.prod.config.js', "module.exports = require('./webpack.config')");
-
+    // bootstrap main code
     const mainContent: string = tree.get('src/main.ts').content.toString();
     const bootstrapContent = `import('./bootstrap').catch((err) => console.error(err));`;
 
