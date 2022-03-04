@@ -4,8 +4,8 @@ import { AngularAcceptedStyles, IQuestionInit } from '../core';
 export async function questionsToInitProject(args: IQuestionInit): Promise<IQuestionInit> {
   const acceptedStyles: string[] = Object.values(AngularAcceptedStyles);
   const questions: QuestionCollection<any>[] = [];
-
-  if (args.projectName?.length <= 0) {
+  console.log(args);
+  if (!args.projectName || args.projectName?.length <= 0) {
     questions.push({
       type: 'input',
       name: 'projectName',
@@ -26,7 +26,7 @@ export async function questionsToInitProject(args: IQuestionInit): Promise<IQues
   const answers: Partial<IQuestionInit> = await inquirer.prompt(questions);
 
   return {
-    projectName: args.projectName.length > 0 ? args.projectName : answers.projectName,
+    projectName: args.projectName?.length > 0 ? args.projectName : answers.projectName,
     style: acceptedStyles.includes(args.style) ? args.style : answers.style,
   };
 }

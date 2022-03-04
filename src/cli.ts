@@ -7,7 +7,6 @@ import { serve } from './scripts';
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
   log.info('Executing custom command');
-
   // if serveAll
   if (options.serveAll) {
     const workspace: IBiWorkspace = getExistingBiConfig();
