@@ -4,7 +4,7 @@ import { AngularAcceptedStyles, IQuestionInit } from '../core';
 export async function questionsToInitProject(args: IQuestionInit): Promise<IQuestionInit> {
   const acceptedStyles: string[] = Object.values(AngularAcceptedStyles);
   const questions: QuestionCollection<any>[] = [];
-  console.log(args);
+
   if (!args.projectName || args.projectName?.length <= 0) {
     questions.push({
       type: 'input',
