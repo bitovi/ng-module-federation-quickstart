@@ -38,7 +38,7 @@ export class AppRoutingModule {}`;
 
 const newAppModule = `
 	{
-		path: 'remote',
+		path: '{{remoteName}}',
 		loadChildren: () =>
 			loadRemoteModule({
 				type: 'module',
@@ -95,7 +95,9 @@ function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
   const oldRouterModule: string = tree.get('src/app/app-routing.module.ts').content.toString();
   const allRoutes = oldRouterModule.match(routesRegex)[0];
   const foundRoutes = allRoutes.match(singleRouteRegex);
-  const newRouteToAdd = newAppModule.replace(/\{\{port\}\}/, _options.port);
+  const newRouteToAdd = newAppModule
+    .replace(/\{\{port\}\}/, _options.port)
+    .replace(/\{\{remoteName\}\}/, _options.remoteName ?? 'remote');
 
   let finalRoutes = '';
   let newRouterModule = '';

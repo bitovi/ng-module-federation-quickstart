@@ -47,7 +47,7 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   // add remote to host app
   const enterHost = `cd ${projectPath}/apps/${bitoviConfig.host}`;
   const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${appOptions.projectName} --port=${remotePort} --addRemote=true --sample=true`;
-  const addRemoteSample = `ng g @bitovi/bi:sample --host=true --modify=true --port=${remotePort}`;
+  const addRemoteSample = `ng g @bitovi/bi:sample --host=true --modify=true --port=${remotePort} --remoteName=${appOptions.projectName}`;
 
   try {
     execSync(`${enterHost} && ${addRemoteSchematic} && ${addRemoteSample}`);
