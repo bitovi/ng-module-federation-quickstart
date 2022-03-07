@@ -1,24 +1,57 @@
 import { Tree } from '@angular-devkit/schematics';
-import { parseToObject } from '../../../core';
+import { objectPattern, parseToObject, remotesPattern } from '../../../core';
 
-const remotesRegex = /remotes[:\s\{\tA-Za-z0-9\'\"\/\n.@,]{1,}\}/;
+const devEnvPath = 'src/environments/environment.ts';
+const prodEnvPat = 'src/environments/environment.prod.ts';
 
 export function addRemote(tree: Tree, _options: any): Tree {
   let webpackConfig = tree.get('webpack.config.js').content.toString();
   const remotes: string = webpackConfig
-    .match(remotesRegex)[0]
+    .match(remotesPattern)[0]
     .replace(/remotes[\s\t\n]{0,}:/, '')
     .replace(/[\n\s\t\{\}]/g, '');
 
-  const newRemotes = parseToObject(remotes);
+  const devEnvironment: string = tree.get(devEnvPath).content.toString();
+  const devEnvironmentObj: { [key: string]: any } = parseToObject(
+    devEnvironment.match(objectPattern)[0]
+  );
+  console.log(devEnvironmentObj);
 
-  newRemotes[
+  const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
+  const prodEnvironmentObj: { [key: string]: any } = parseToObject(
+    prodEnvironment.match(objectPattern)[0]
+  );
+
+  devEnvironmentObj[
+    _options.projectName
+  ] = `${_options.projectName}@http://localhost:${_options.port}/remoteEntry.js`;
+  prodEnvironmentObj[
     _options.projectName
   ] = `${_options.projectName}@http://localhost:${_options.port}/remoteEntry.js`;
 
-  const newConfig = webpackConfig.replace(remotesRegex, `remotes: ${JSON.stringify(newRemotes)}`);
+  const newRemotes = parseToObject(remotes);
+
+  newRemotes[_options.projectName] = `environment.${_options.projectName}`;
+
+  let newConfig = webpackConfig.replace(
+    remotesPattern,
+    `remotes: ${JSON.stringify(newRemotes).replace(/,/g, ',\n')}`
+  );
+
+  if (!newConfig.includes('environment')) {
+    newConfig = `import { environment } from '../environments/environment';\n${newConfig}`;
+  }
 
   tree.overwrite('webpack.config.js', newConfig);
+  // overwrite environment
+  tree.overwrite(
+    devEnvPath,
+    devEnvironment.replace(objectPattern, JSON.stringify(devEnvironmentObj).replace(/,/g, ',\n'))
+  );
+  tree.overwrite(
+    prodEnvPat,
+    prodEnvironment.replace(objectPattern, JSON.stringify(prodEnvironmentObj).replace(/,/g, ',\n'))
+  );
 
   // add remote module declarations
   const moduleDeclaration = `declare module '${_options.projectName}/Module';`;

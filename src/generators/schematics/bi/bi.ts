@@ -1,4 +1,4 @@
-import { chain, externalSchematic, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
 import { generateWebpackConfig } from '../webpack';
 

@@ -4,7 +4,7 @@ export const remoteRoute = `
 		loadChildren: () =>
 			loadRemoteModule({
 				type: 'module',
-				remoteEntry: 'http://localhost:{{port}}/remoteEntry.js',
+				remoteEntry: environment.{{remoteName}},
 				exposedModule: 'RemoteModule',
 			}).then((m) => m.RemoteModule),
 	}`;

@@ -2,7 +2,16 @@ export function parseToObject(object: string): { [key: string]: any } {
   const finalObj = {};
   const nameRegex = /[A-Za-z0-9\_\-]{1,}:/;
 
-  const values: string[] = object.split(',').filter((value) => value.length > 0);
+  if (object[0] === '{' && object[object.length - 1] === '}') {
+    object = object.substring(1);
+    object = object.slice(0, -1);
+  }
+
+  const values: string[] = object
+    .replace(/[\n\s\t]/g, '')
+    .trim()
+    .split(',')
+    .filter((value) => value.length > 0);
 
   for (let value of values) {
     if (!value.match(nameRegex)) {
@@ -14,6 +23,6 @@ export function parseToObject(object: string): { [key: string]: any } {
 
     finalObj[propName.replace(/:/g, '')] = value;
   }
-
+  console.log(finalObj);
   return finalObj;
 }

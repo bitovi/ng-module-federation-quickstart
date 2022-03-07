@@ -1,8 +1,6 @@
 import { chain, externalSchematic, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { newAppRoutingModule, newRemoteModule, remoteRoute } from './module-samples';
-
-const routesRegex = /const routes[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\]/;
-const singleRouteRegex = /\{[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\}/;
+import { objectPattern, routesPattern } from '../../../core';
 
 export function sample(_options: any): Rule {
   return (tree: Tree, _context: SchematicContext) => {
@@ -47,11 +45,9 @@ function addRemoteModuleToNewApp(tree: Tree): Tree {
 
 function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
   const oldRouterModule: string = tree.get('src/app/app-routing.module.ts').content.toString();
-  const allRoutes = oldRouterModule.match(routesRegex)[0];
-  const foundRoutes = allRoutes.match(singleRouteRegex);
-  const newRouteToAdd = remoteRoute
-    .replace(/\{\{port\}\}/, _options.port)
-    .replace(/\{\{remoteName\}\}/, _options.remoteName ?? 'remote');
+  const allRoutes = oldRouterModule.match(routesPattern)[0];
+  const foundRoutes = allRoutes.match(objectPattern);
+  const newRouteToAdd = remoteRoute.replace(/\{\{remoteName\}\}/g, _options.remoteName ?? 'remote');
 
   let finalRoutes = '';
   let newRouterModule = '';
@@ -64,10 +60,14 @@ function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
     finalRoutes = `const routes: Routes = [${newRouteToAdd}]`;
   }
 
-  newRouterModule = oldRouterModule.replace(routesRegex, finalRoutes);
+  newRouterModule = oldRouterModule.replace(routesPattern, finalRoutes);
 
   if (!oldRouterModule.match(/loadRemoteModule/g)) {
     newRouterModule = `import { loadRemoteModule } from '@angular-architects/module-federation';\n${newRouterModule}`;
+  }
+
+  if (!oldRouterModule.match(/environment/g)) {
+    newRouterModule = `import { environment } from '../environments/environment';\n\n${newRouterModule}`;
   }
 
   tree.overwrite('src/app/app-routing.module.ts', newRouterModule);
