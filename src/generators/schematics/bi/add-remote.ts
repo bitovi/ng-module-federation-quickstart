@@ -1,5 +1,5 @@
 import { Tree } from '@angular-devkit/schematics';
-import { parseToObject } from '../../core';
+import { parseToObject } from '../../../core';
 
 const remotesRegex = /remotes[:\s\{\tA-Za-z0-9\'\"\/\n.@,]{1,}\}/;
 

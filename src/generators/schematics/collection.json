@@ -3,11 +3,11 @@
   "schematics": {
     "bi": {
       "description": "Creates new app",
-      "factory": "../../../dist/generators/schematics/bi#bitovi"
+      "factory": "../../../dist/generators/schematics/bi/bi#bitovi"
     },
     "sample": {
       "description": "Creates module federation sample",
-      "factory": "../../../dist/generators/schematics/sample#sample"
+      "factory": "../../../dist/generators/schematics/sample/sample#sample"
     }
   }
 }

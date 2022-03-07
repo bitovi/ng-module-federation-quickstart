@@ -1,6 +1,6 @@
 import { chain, externalSchematic, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
-import { generateWebpackConfig } from './webpack';
+import { generateWebpackConfig } from '../webpack';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.

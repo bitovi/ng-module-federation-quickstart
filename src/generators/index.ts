@@ -1,3 +1,3 @@
 export * from './workspace';
 export * from './apps';
-export * from './schematics/bi';
+export * from './schematics/bi/bi';

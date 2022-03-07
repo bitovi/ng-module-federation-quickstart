@@ -1,51 +1,5 @@
 import { chain, externalSchematic, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
-
-const newRemoteModule = `import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RemoteComponent } from './remote/remote.component';
-import { RouterModule, Routes } from '@angular/router';
-
-const routes: Routes = [
-	{
-		path: '',
-		component: RemoteComponent,
-	},
-];
-
-@NgModule({
-	declarations: [RemoteComponent],
-	imports: [CommonModule, RouterModule.forChild(routes)],
-})
-export class RemoteModule {}`;
-
-const newAppRoutingModule = `import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
-const routes: Routes = [
-	{
-		path: '',
-		loadChildren: () => import('./remote/remote.module').then((m) => m.RemoteModule),
-	},
-];
-
-@NgModule({
-	imports: [
-		RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
-	],
-	exports: [RouterModule],
-})
-export class AppRoutingModule {}`;
-
-const newAppModule = `
-	{
-		path: '{{remoteName}}',
-		loadChildren: () =>
-			loadRemoteModule({
-				type: 'module',
-				remoteEntry: 'http://localhost:{{port}}/remoteEntry.js',
-				exposedModule: 'RemoteModule',
-			}).then((m) => m.RemoteModule),
-	}`;
+import { newAppRoutingModule, newRemoteModule, remoteRoute } from './module-samples';
 
 const routesRegex = /const routes[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\]/;
 const singleRouteRegex = /\{[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\}/;
@@ -95,7 +49,7 @@ function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
   const oldRouterModule: string = tree.get('src/app/app-routing.module.ts').content.toString();
   const allRoutes = oldRouterModule.match(routesRegex)[0];
   const foundRoutes = allRoutes.match(singleRouteRegex);
-  const newRouteToAdd = newAppModule
+  const newRouteToAdd = remoteRoute
     .replace(/\{\{port\}\}/, _options.port)
     .replace(/\{\{remoteName\}\}/, _options.remoteName ?? 'remote');
 
@@ -103,7 +57,7 @@ function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
   let newRouterModule = '';
 
   if (foundRoutes) {
-    finalRoutes = foundRoutes[0];
+    finalRoutes = foundRoutes[0].trim();
     finalRoutes += `${finalRoutes[finalRoutes.length - 1] === ',' ? '' : ','} ${newRouteToAdd}`;
     finalRoutes = `const routes: Routes = [${finalRoutes}]`;
   } else {
