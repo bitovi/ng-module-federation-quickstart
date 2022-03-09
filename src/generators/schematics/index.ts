@@ -77,7 +77,7 @@ export function bitovi(_options: any): Rule {
 
 		tree.create('src/bootstrap.ts', mainContent);
 		tree.overwrite('src/main.ts', bootstrapContent);
-
+		console.log('hiiit')
 		tree = removeNoNeededFiles(tree);
 		tree = useCustomWebpack(tree, _options.projectName);
 

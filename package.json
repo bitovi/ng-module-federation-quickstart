@@ -1,46 +1,59 @@
 {
-	"name": "@bitovi/bi",
-	"version": "1.0.0",
-	"description": "",
-	"main": "dist/cli.js",
-	"scripts": {
-		"ng": "ng",
-		"test": "ng test",
-		"build": "tsc"
-	},
-	"bin": "bin/bitovi-project",
-	"keywords": [
-		"cli",
-		"bitovi",
-		"schematics"
-	],
-	"schematics": "./src/generators/schematics/collection.json",
-	"dependencies": {
-		"@angular-devkit/core": "^13.2.3",
-		"@angular-devkit/schematics": "^13.2.3",
-		"@angular/cli": "^13.2.3",
-		"arg": "^4.1.0",
-		"chalk": "^2.4.2",
-		"covgen": "^3.1.0",
-		"esm": "^3.2.18",
-		"execa": "^1.0.0",
-		"gitignore": "^0.6.0",
-		"inquirer": "^6.2.2",
-		"jsonc-parser": "^3.0.0",
-		"listr": "^0.14.3",
-		"ncp": "^2.0.0",
-		"pkg-install": "^0.2.0",
-		"spdx-license-list": "^5.0.0"
-	},
-	"files": [
-		"bin/",
-		"src/",
-		"templates/"
-	],
-	"author": "",
-	"license": "ISC",
-	"devDependencies": {
-		"@types/inquirer": "^8.2.0",
-		"@types/jest": "^27.4.1"
-	}
+  "name": "@bitovi/bi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/cli.js",
+  "scripts": {
+    "test": "ts-mocha -p tsconfig.json test/**/*.spec.ts --exit",
+    "build": "tsc"
+  },
+  "bin": "bin/bitovi-project",
+  "keywords": [
+    "cli",
+    "bitovi",
+    "schematics"
+  ],
+  "schematics": "./src/generators/schematics/collection.json",
+  "dependencies": {
+    "@angular-devkit/core": "^13.2.4",
+    "@angular-devkit/schematics": "^13.2.4",
+    "@angular/cli": "^13.2.4",
+    "arg": "^4.1.0",
+    "chalk": "^2.4.2",
+    "covgen": "^3.1.0",
+    "esm": "^3.2.18",
+    "execa": "^1.0.0",
+    "gitignore": "^0.6.0",
+    "inquirer": "^6.2.2",
+    "inquirer-test": "^2.0.1",
+    "jsonc-parser": "^3.0.0",
+    "listr": "^0.14.3",
+    "ncp": "^2.0.0",
+    "pkg-install": "^0.2.0",
+    "spdx-license-list": "^5.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/chai-spies": "^1.0.3",
+    "@types/expect": "^24.3.0",
+    "@types/inquirer": "^8.2.0",
+    "@types/jest": "^27.4.1",
+    "@types/mocha": "^9.1.0",
+    "ava": "^4.0.1",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "chai-spies": "^1.0.0",
+    "mocha": "^9.2.1",
+    "sinon": "^13.0.1",
+    "sinon-chai": "^3.7.0",
+    "ts-mocha": "^9.0.2",
+    "ts-sinon": "^2.0.2"
+  }
 }

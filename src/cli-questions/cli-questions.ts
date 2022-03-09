@@ -6,8 +6,9 @@ export async function questionsToInitProject(
 ): Promise<IQuestionInit> {
 	const acceptedStyles = ['css', 'scss'];
 	const questions: QuestionCollection<any>[] = [];
-
+	console.log('reach method')
 	if (args.projectName.length <= 0) {
+		console.log('project name')
 		questions.push({
 			type: 'input',
 			name: 'projectName',
@@ -16,6 +17,7 @@ export async function questionsToInitProject(
 	}
 
 	if (!acceptedStyles.includes(args.style)) {
+		console.log('css name')
 		questions.push({
 			type: 'list',
 			name: 'style',
@@ -24,12 +26,16 @@ export async function questionsToInitProject(
 			default: 'css',
 		});
 	}
-
 	const answers = await inquirer.prompt(questions);
-
-	return {
+	const val = {
 		projectName:
 			args.projectName.length > 0 ? args.projectName : answers.projectName,
 		style: acceptedStyles.includes(args.style) ? args.style : answers.style,
 	};
+	console.log('args', args)
+	console.log('ques', questions)
+	console.log('answers', answers);
+	console.log('vals', val);
+
+	return val;
 }
