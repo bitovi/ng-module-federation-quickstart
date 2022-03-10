@@ -1,5 +1,5 @@
 import { Tree } from '@angular-devkit/schematics';
-import { objectPattern, parseToObject, remotesPattern } from '../../../core';
+import { objectPattern, parseToObject, parseToString, remotesPattern } from '../../../core';
 
 const devEnvPath = 'src/environments/environment.ts';
 const prodEnvPat = 'src/environments/environment.prod.ts';
@@ -12,31 +12,39 @@ export function addRemote(tree: Tree, _options: any): Tree {
     .replace(/[\n\s\t\{\}]/g, '');
 
   const devEnvironment: string = tree.get(devEnvPath).content.toString();
-  const devEnvironmentObj: { [key: string]: any } = parseToObject(
-    devEnvironment.match(objectPattern)[0]
-  );
-  console.log(devEnvironmentObj);
-
   const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
-  const prodEnvironmentObj: { [key: string]: any } = parseToObject(
-    prodEnvironment.match(objectPattern)[0]
-  );
+  const newRoute = `${_options.projectName}: 'http://localhost:${_options.port}/remoteEntry.js'`;
 
-  devEnvironmentObj[
-    _options.projectName
-  ] = `${_options.projectName}@http://localhost:${_options.port}/remoteEntry.js`;
-  prodEnvironmentObj[
-    _options.projectName
-  ] = `${_options.projectName}@http://localhost:${_options.port}/remoteEntry.js`;
+  const newDevEnvironment = `{${[
+    ...devEnvironment
+      .match(objectPattern)[0]
+      .replace(/[\n\t]/g, '')
+      .slice(1, -1)
+      .split(','),
+    newRoute,
+  ]
+    .filter((value) => value.length > 0)
+    .join(',\n')}}`;
+  console.log(newDevEnvironment);
 
-  const newRemotes = parseToObject(remotes);
+  const newProdEnvironment = `{${[
+    ...prodEnvironment
+      .match(objectPattern)[0]
+      .replace(/[\n\t]/g, '')
+      .slice(1, -1)
+      .split(','),
+    ,
+    newRoute,
+  ]
+    .filter((value) => value.length > 0)
+    .join(',\n')}
+  }`;
+
+  const newRemotes = parseToObject(`{${remotes}}`);
 
   newRemotes[_options.projectName] = `environment.${_options.projectName}`;
 
-  let newConfig = webpackConfig.replace(
-    remotesPattern,
-    `remotes: ${JSON.stringify(newRemotes).replace(/,/g, ',\n')}`
-  );
+  let newConfig = webpackConfig.replace(remotesPattern, `remotes: ${parseToString(newRemotes)}`);
 
   if (!newConfig.includes('environment')) {
     newConfig = `import { environment } from '../environments/environment';\n${newConfig}`;
@@ -44,14 +52,8 @@ export function addRemote(tree: Tree, _options: any): Tree {
 
   tree.overwrite('webpack.config.js', newConfig);
   // overwrite environment
-  tree.overwrite(
-    devEnvPath,
-    devEnvironment.replace(objectPattern, JSON.stringify(devEnvironmentObj).replace(/,/g, ',\n'))
-  );
-  tree.overwrite(
-    prodEnvPat,
-    prodEnvironment.replace(objectPattern, JSON.stringify(prodEnvironmentObj).replace(/,/g, ',\n'))
-  );
+  tree.overwrite(devEnvPath, devEnvironment.replace(objectPattern, newDevEnvironment));
+  tree.overwrite(prodEnvPat, prodEnvironment.replace(objectPattern, newProdEnvironment));
 
   // add remote module declarations
   const moduleDeclaration = `declare module '${_options.projectName}/Module';`;

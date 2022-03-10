@@ -24,7 +24,7 @@ export function serve(workspacePath: string, project?: string) {
     const appProperties: IApp = biConfig.apps[appToRun];
     serveApp(workspacePath, appProperties, isHost);
 
-    log.info(`Running ${appToRun} at http://locahost:${appProperties.port}`);
+    log.info(`Running ${appToRun} at http://localhost:${appProperties.port}`);
   }
 }
 

@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { IBiWorkspace, IQuestionInit, log } from '../../core';
+import { ConsoleColor, IQuestionInit, log } from '../../core';
 import { IApp, IBitoviConfig } from '../../core/interfaces/bitovi-config.interface';
 import { getExistingBiConfig } from '../workspace';
 
@@ -54,6 +54,9 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   } catch (e) {
     console.error(e);
   }
+
+  log.color(ConsoleColor.FgRed, 'REMEMBER!');
+  log.color(ConsoleColor.FgCyan, '\t -> Change link in production environment');
 
   // modify project configuration
   writeFileSync(join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));

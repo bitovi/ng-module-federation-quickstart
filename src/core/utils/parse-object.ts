@@ -1,5 +1,5 @@
-export function parseToObject(object: string): { [key: string]: any } {
-  const finalObj = {};
+export function parseToObject(object: string): any {
+  let finalObj = {};
   const nameRegex = /[A-Za-z0-9\_\-]{1,}:/;
 
   if (object[0] === '{' && object[object.length - 1] === '}') {
@@ -23,6 +23,8 @@ export function parseToObject(object: string): { [key: string]: any } {
 
     finalObj[propName.replace(/:/g, '')] = value;
   }
-  console.log(finalObj);
+
+  finalObj = eval(`(() => { return ${JSON.stringify(finalObj)}})()`);
+
   return finalObj;
 }

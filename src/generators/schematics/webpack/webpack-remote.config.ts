@@ -2,8 +2,17 @@ export const webpackRemoteConfigTemplate = `const ModuleFederationPlugin = requi
 const mf = require('@angular-architects/module-federation/webpack');
 const path = require('path');
 const share = mf.share;
+const fs = require('fs');
 
-const tsConfigPath = path.join(__dirname, '../../tsconfig.base.json');
+const environmentPath = path.join(__dirname, 'src/environments/environment.ts');
+const environmentFile = fs
+	.readFileSync(environmentPath)
+	.toString()
+	.replace(/export/, '');
+const environmentText = environmentFile.match(
+	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.]+\\}/gi,
+)[0];
+const environment = eval(\`(() => { return \$\{environmentText\}})()\`);
 
 const workspaceRootPath = path.join(__dirname, 'tsconfig.app.json');
 const sharedMappings = new mf.SharedMappings();
@@ -13,7 +22,7 @@ sharedMappings.register(workspaceRootPath);
 module.exports = {
 	output: {
 		uniqueName: '{{projectName}}',
-		publicPath: 'auto',
+		publicPath: environment.{{projectName}} || 'auto',
 		scriptType: 'module',
 	},
 	optimization: {

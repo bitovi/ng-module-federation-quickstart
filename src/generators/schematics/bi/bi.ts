@@ -1,6 +1,7 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
 import { generateWebpackConfig } from '../webpack';
+import { objectPattern } from '../../../core';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
@@ -42,6 +43,8 @@ export function bitovi(_options: any): Rule {
     tree.create('src/bootstrap.ts', mainContent);
     tree.overwrite('src/main.ts', bootstrapContent);
 
+    tree = updateEnvironment(tree, _options.projectName);
+
     tree = removeNoNeededFiles(tree);
     tree = useCustomWebpack(tree, _options.projectName);
 
@@ -75,5 +78,44 @@ function useCustomWebpack(tree: Tree, projectName: string): Tree {
     '@angular-builders/custom-webpack:dev-server';
 
   tree.overwrite('angular.json', JSON.stringify(angularConfig));
+  return tree;
+}
+
+function updateEnvironment(tree: Tree, projectName: string) {
+  const devEnvPath = 'src/environments/environment.ts';
+  const prodEnvPat = 'src/environments/environment.prod.ts';
+
+  const devEnvironment: string = tree.get(devEnvPath).content.toString();
+  const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
+
+  const newRoute = `${projectName}: 'auto'`;
+  const newDevEnvironment = `{${[
+    ...devEnvironment
+      .match(objectPattern)[0]
+      .replace(/[\n\t]/g, '')
+      .slice(1, -1)
+      .split(','),
+    newRoute,
+  ]
+    .filter((value) => value.length > 0)
+    .join(',\n')}}`;
+  console.log(newDevEnvironment);
+
+  const newProdEnvironment = `{${[
+    ...prodEnvironment
+      .match(objectPattern)[0]
+      .replace(/[\n\t]/g, '')
+      .slice(1, -1)
+      .split(','),
+    ,
+    newRoute,
+  ]
+    .filter((value) => value.length > 0)
+    .join(',\n')}
+  }`;
+
+  tree.overwrite(devEnvPath, devEnvironment.replace(objectPattern, newDevEnvironment));
+  tree.overwrite(prodEnvPat, prodEnvironment.replace(objectPattern, newProdEnvironment));
+
   return tree;
 }
