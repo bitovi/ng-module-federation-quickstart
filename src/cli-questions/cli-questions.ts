@@ -25,8 +25,10 @@ export async function questionsToInitProject(args: IQuestionInit): Promise<IQues
 
   const answers: Partial<IQuestionInit> = await inquirer.prompt(questions);
 
-  return {
+  const result = {
     projectName: args.projectName?.length > 0 ? args.projectName : answers.projectName,
     style: acceptedStyles.includes(args.style) ? args.style : answers.style,
   };
+
+  return result;
 }
