@@ -9,7 +9,8 @@
 		"esModuleInterop": true,
 		"noImplicitAny": false,
 		"strictNullChecks": false,
-		"typeRoots": ["./dist/cli.d.ts"]
+		"typeRoots": ["./dist/cli.d.ts"],
+		"baseUrl": "types",
 	},
 	"include": ["./src/**/*"],
 	"exclude": ["node_modules", "dist"]
