@@ -4,6 +4,7 @@ import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
 import { serve } from './scripts';
 
+// main function
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
   log.info('Executing custom command');
