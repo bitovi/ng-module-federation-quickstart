@@ -37,7 +37,7 @@ export async function cli(args: any): Promise<void> {
   }
 
   // if adding new remote
-  if (options.remote.length > 0) {
+  if (options.remote?.length > 0) {
     let initRemoteOptions: IQuestionInit = {
       projectName: options.remote,
       style: options.style,

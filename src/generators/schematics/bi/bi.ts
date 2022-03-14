@@ -40,12 +40,17 @@ export function bitovi(_options: any): Rule {
     const mainContent: string = tree.get('src/main.ts').content.toString();
     const bootstrapContent = `import('./bootstrap').catch((err) => console.error(err));`;
 
+    // create bootstrap.ts with the same code as main.ts
     tree.create('src/bootstrap.ts', mainContent);
+    // call bootstrap from main
     tree.overwrite('src/main.ts', bootstrapContent);
 
     tree = updateEnvironment(tree, _options.projectName);
 
+    // removes package.json, .vscode, .gitignore and .editorconfig
+    // those files are no needed
     tree = removeNoNeededFiles(tree);
+    // gets angular.json and sets our webpack config as the webpack config to
     tree = useCustomWebpack(tree, _options.projectName);
 
     return tree;
