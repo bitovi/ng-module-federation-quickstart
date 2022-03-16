@@ -1,17 +1,5 @@
-export const newAppRoutingModule = `import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
-const routes: Routes = [
+export const newAppRoutingModule = `
 	{
 		path: '',
-		loadChildren: () => import('./remote/remote.module').then((m) => m.RemoteModule),
-	},
-];
-
-@NgModule({
-	imports: [
-		RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
-	],
-	exports: [RouterModule],
-})
-export class AppRoutingModule {}`;
+		loadChildren: () => import('{{modulePath}}').then((m) => m.{{moduleName}}),
+	}`;

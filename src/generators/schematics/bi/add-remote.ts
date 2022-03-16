@@ -1,5 +1,6 @@
 import { Tree } from '@angular-devkit/schematics';
 import { objectPattern, parseToObject, parseToString, remotesPattern } from '../../../core';
+import { format } from 'prettier';
 
 const devEnvPath = 'src/environments/environment.ts';
 const prodEnvPat = 'src/environments/environment.prod.ts';
@@ -25,7 +26,6 @@ export function addRemote(tree: Tree, _options: any): Tree {
   ]
     .filter((value) => value.length > 0)
     .join(',\n')}}`;
-  console.log(newDevEnvironment);
 
   const newProdEnvironment = `{${[
     ...prodEnvironment
@@ -50,10 +50,16 @@ export function addRemote(tree: Tree, _options: any): Tree {
     newConfig = `import { environment } from '../environments/environment';\n${newConfig}`;
   }
 
-  tree.overwrite('webpack.config.js', newConfig);
+  tree.overwrite('webpack.config.js', format(newConfig, { parser: 'babel' }));
   // overwrite environment
-  tree.overwrite(devEnvPath, devEnvironment.replace(objectPattern, newDevEnvironment));
-  tree.overwrite(prodEnvPat, prodEnvironment.replace(objectPattern, newProdEnvironment));
+  tree.overwrite(
+    devEnvPath,
+    format(devEnvironment.replace(objectPattern, newDevEnvironment), { parser: 'babel' })
+  );
+  tree.overwrite(
+    prodEnvPat,
+    format(prodEnvironment.replace(objectPattern, newProdEnvironment), { parser: 'babel' })
+  );
 
   // add remote module declarations
   const moduleDeclaration = `declare module '${_options.projectName}/Module';`;

@@ -1,7 +1,8 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
 import { generateWebpackConfig } from '../webpack';
-import { objectPattern } from '../../../core';
+import { addPropertyToObjectString, objectPattern } from '../../../core';
+import { format } from 'prettier';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
@@ -10,14 +11,15 @@ export function bitovi(_options: any): Rule {
     // if port exists, is remote app
     // add webpack config for module federation
 
-    if (_options.port) {
-      // Add remotes to host
-      if (_options.addRemote) {
-        const remoteAdded = addRemote(tree, _options);
+    if (_options.port && _options.addRemote) {
+      // add remotes to host
+      const remoteAdded = addRemote(tree, _options);
 
-        return remoteAdded;
-      }
+      return remoteAdded;
+    }
 
+    // add webpack remote config
+    if (_options.port && !_options.host) {
       tree.create(
         'webpack.config.js',
         generateWebpackConfig({
@@ -27,6 +29,7 @@ export function bitovi(_options: any): Rule {
       );
     }
 
+    // add webpack host config
     if (_options.host) {
       tree.create(
         'webpack.config.js',
@@ -94,33 +97,17 @@ function updateEnvironment(tree: Tree, projectName: string) {
   const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
 
   const newRoute = `${projectName}: 'auto'`;
-  const newDevEnvironment = `{${[
-    ...devEnvironment
-      .match(objectPattern)[0]
-      .replace(/[\n\t]/g, '')
-      .slice(1, -1)
-      .split(','),
-    newRoute,
-  ]
-    .filter((value) => value.length > 0)
-    .join(',\n')}}`;
-  console.log(newDevEnvironment);
+  const newDevEnvironment = addPropertyToObjectString(devEnvironment, newRoute);
+  const newProdEnvironment = addPropertyToObjectString(prodEnvironment, newRoute);
 
-  const newProdEnvironment = `{${[
-    ...prodEnvironment
-      .match(objectPattern)[0]
-      .replace(/[\n\t]/g, '')
-      .slice(1, -1)
-      .split(','),
-    ,
-    newRoute,
-  ]
-    .filter((value) => value.length > 0)
-    .join(',\n')}
-  }`;
-
-  tree.overwrite(devEnvPath, devEnvironment.replace(objectPattern, newDevEnvironment));
-  tree.overwrite(prodEnvPat, prodEnvironment.replace(objectPattern, newProdEnvironment));
+  tree.overwrite(
+    devEnvPath,
+    format(devEnvironment.replace(objectPattern, newDevEnvironment), { parser: 'babel' })
+  );
+  tree.overwrite(
+    prodEnvPat,
+    format(prodEnvironment.replace(objectPattern, newProdEnvironment), { parser: 'babel' })
+  );
 
   return tree;
 }

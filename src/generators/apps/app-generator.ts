@@ -26,7 +26,7 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   // modify remote to have custom webpack configuration
   const remotePort: number = getNextPort(bitoviConfig);
   const enterRemote = `cd ${projectPath}/apps/${appOptions.projectName}`;
-  const modifyRemote = ` ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`;
+  const modifyRemote = `ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`;
 
   try {
     execSync(`${enterRemote} && ${modifyRemote}`);

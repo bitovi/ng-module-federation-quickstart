@@ -1,13 +1,22 @@
-import { questionsToInitProject } from './cli-questions';
-import { IBiWorkspace, IQuestionInit, log, parseArgumentsIntoOptions } from './core';
+import { questionsToInitProject, questionsToRemoteModule } from './cli-questions';
+import {
+  IBiWorkspace,
+  IQuestionInit,
+  IQuestionsRemoteModule,
+  log,
+  parseArgumentsIntoOptions,
+} from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
 import { serve } from './scripts';
+import { execSync } from 'child_process';
+import { join } from 'path';
 
 // main function
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = parseArgumentsIntoOptions(args);
   log.info('Executing custom command');
+
   // if serveAll
   if (options.serveAll) {
     const workspace: IBiWorkspace = getExistingBiConfig();
@@ -45,5 +54,27 @@ export async function cli(args: any): Promise<void> {
     initRemoteOptions = await questionsToInitProject(initRemoteOptions);
 
     await generateRemote(initRemoteOptions);
+  }
+
+  if (options.addRemoteModule?.length) {
+    let remoteModuleOptions: IQuestionsRemoteModule = {
+      projectName: options.projectName,
+      remoteModule: options.addRemoteModule,
+    };
+    remoteModuleOptions = await questionsToRemoteModule(remoteModuleOptions);
+
+    const workspace: IBiWorkspace = getExistingBiConfig();
+
+    const enterApp = `cd ${join(
+      workspace.rootPath,
+      workspace.biConfig.apps[remoteModuleOptions.projectName].path
+    )}`;
+    const addRemoteModule = `ng g @bitovi/bi:sample --remoteModule=${remoteModuleOptions.remoteModule} --modify=false --remote=true`;
+
+    try {
+      execSync(`${enterApp} && ${addRemoteModule}`);
+    } catch (error) {
+      log.error('There was an error adding a new module');
+    }
   }
 }

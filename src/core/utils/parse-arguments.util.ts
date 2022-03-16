@@ -1,7 +1,15 @@
 import { ICliParams } from '../interfaces';
 
 export function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
-  const reservedWords = ['init', 'style', 'remote', 'serveAll', 'serve', 'project'];
+  const reservedWords = [
+    'init',
+    'style',
+    'remote',
+    'serveAll',
+    'serve',
+    'projectName',
+    'addRemoteModule',
+  ];
   const booleanParams = ['init', 'serveAll'];
 
   const splittedArguments: string[] = rawArgs.slice(2);
@@ -36,7 +44,7 @@ export function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
     }
 
     if (reservedWords.includes(previousArgument) && !currentArgument.includes('--')) {
-      if (previousArgument === 'init' || previousArgument === 'serveAll') {
+      if (booleanParams.includes(previousArgument)) {
         cliOptions[previousArgument] = currentArgument === 'true';
 
         continue;

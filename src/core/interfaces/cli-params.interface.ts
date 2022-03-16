@@ -5,4 +5,6 @@ export interface ICliParams {
   remote?: string;
   serveAll?: boolean;
   serve?: string;
+
+  addRemoteModule?: string;
 }

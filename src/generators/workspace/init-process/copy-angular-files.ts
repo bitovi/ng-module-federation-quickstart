@@ -1,6 +1,6 @@
 import { copyFileSync, readdirSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { ConsoleColor, log } from '../../../core';
+import { log } from '../../../core';
 
 export function copyInitialAngularFiles(projectPath: string, projectName: string): void {
   // copy package.json to root folder
@@ -29,8 +29,5 @@ export function copyInitialAngularFiles(projectPath: string, projectName: string
     }
 
     log.success('.vscode copied successfully');
-  } catch (error) {
-    log.error("Couldn't copy .vscode to root folder");
-    console.error(error);
-  }
+  } catch (error) {}
 }
