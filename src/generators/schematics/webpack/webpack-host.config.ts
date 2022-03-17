@@ -35,6 +35,7 @@ module.exports = {
 		new ModuleFederationPlugin({
 			name: '{{projectName}}',
 			remotes: {
+				...environment.remote
 			},
 			shared: share({
 				'@angular/core': {

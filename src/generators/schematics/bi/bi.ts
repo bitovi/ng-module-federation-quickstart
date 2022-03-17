@@ -1,6 +1,6 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
-import { generateWebpackConfig } from '../webpack';
+import { generateWebpackConfig, productionWebpack } from '../webpack';
 import { addPropertyToObjectString, objectPattern } from '../../../core';
 import { format } from 'prettier';
 
@@ -38,7 +38,7 @@ export function bitovi(_options: any): Rule {
     }
 
     // add webpack prod config
-    tree.create('webpack.prod.config.js', "module.exports = require('./webpack.config')");
+    tree.create('webpack.prod.config.js', productionWebpack);
     // bootstrap main code
     const mainContent: string = tree.get('src/main.ts').content.toString();
     const bootstrapContent = `import('./bootstrap').catch((err) => console.error(err));`;

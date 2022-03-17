@@ -4,6 +4,6 @@ export const environmentPattern = /^[A-Z]+[\n\s\t\=\"\'\:A-Z\{]+\}/gim;
 
 export const routesPattern = /const routes[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\]/;
 
-export const objectPattern = /\{[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9]{1,}\}/;
+export const objectPattern = /\{[\{\}A-Za-z\'\",\(\)\:\@\.\=\>\-\_\/\n\s\t\[0-9;]{1,}\}/;
 
 export const exposesPattern = /exposes[\n\s\t:\{]+[A-Z0-9\'\"\\\/,.:\n\s\t]*\}/gim;

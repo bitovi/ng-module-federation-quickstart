@@ -1,23 +1,32 @@
 import { Tree } from '@angular-devkit/schematics';
-import { exposesPattern, objectPattern } from '../../../../core';
+import { objectPattern, parseToObject } from '../../../../core';
 import { format } from 'prettier';
 
 export function addExposedModule(tree: Tree, exposedModule: string, exposedModulePath): Tree {
-  const webpackConfig = tree.get('webpack.config.js').content.toString();
-  const exposedModules = webpackConfig.match(exposesPattern)[0];
-  const exposedArray = exposedModules
-    .match(objectPattern)[0]
-    .replace(/[\{\}\n\s\t]/g, '')
-    .split(',')
-    .filter((value: string) => value.length);
+  const environmentPaths = [
+    'src/environments/environment.ts',
+    'src/environments/environment.prod.ts',
+  ];
 
-  const newExposedModule = `${exposedModule}: "${exposedModulePath}"`;
-  const newExposedObject = `exposes: {${[...exposedArray, newExposedModule].join(',')}}`;
+  for (const environmentPath of environmentPaths) {
+    const environmentConfig = tree.get(environmentPath).content.toString();
 
-  tree.overwrite(
-    'webpack.config.js',
-    format(webpackConfig.replace(exposesPattern, newExposedObject), { parser: 'babel' })
-  );
+    const newEnvironmentConfig = parseToObject(environmentConfig.match(objectPattern)[0]);
+    if (!newEnvironmentConfig.exposes) {
+      newEnvironmentConfig.exposes = {
+        [exposedModule]: exposedModulePath,
+      };
+    } else {
+      newEnvironmentConfig.exposes[exposedModule] = exposedModulePath;
+    }
+
+    tree.overwrite(
+      environmentPath,
+      format(environmentConfig.replace(objectPattern, JSON.stringify(newEnvironmentConfig)), {
+        parser: 'babel',
+      })
+    );
+  }
 
   return tree;
 }

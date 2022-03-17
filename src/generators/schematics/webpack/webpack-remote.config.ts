@@ -42,6 +42,7 @@ module.exports = {
 			filename: 'remoteEntry.js',
 			library: { type: 'module' },
 			exposes: {
+				...environment.exposes
 			},
 			shared: share({
 				'@angular/core': {
