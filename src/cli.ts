@@ -8,7 +8,7 @@ import {
 } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
-import { serve } from './scripts';
+import { build, serve } from './scripts';
 import { execSync } from 'child_process';
 import { join } from 'path';
 
@@ -18,19 +18,15 @@ export async function cli(args: any): Promise<void> {
   log.info('Executing custom command');
 
   // if serveAll
-  if (options.serveAll) {
-    const workspace: IBiWorkspace = getExistingBiConfig();
-    serve(workspace.rootPath);
-
-    return;
-  }
-
-  // if serving one project
-  if (options.serve) {
+  if (options.serveAll || options.serve) {
     const workspace: IBiWorkspace = getExistingBiConfig();
     serve(workspace.rootPath, options.serve);
 
     return;
+  }
+
+  if (options.buildAll || options.build) {
+    build(options.build);
   }
 
   // if initiating project

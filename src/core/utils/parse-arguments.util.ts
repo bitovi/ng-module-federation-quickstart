@@ -9,8 +9,10 @@ export function parseArgumentsIntoOptions(rawArgs: any): ICliParams {
     'serve',
     'projectName',
     'addRemoteModule',
+    'build',
+    'buildAll',
   ];
-  const booleanParams = ['init', 'serveAll'];
+  const booleanParams = ['init', 'serveAll', 'buildAll'];
 
   const splittedArguments: string[] = rawArgs.slice(2);
   const cliOptions: ICliParams = {};
