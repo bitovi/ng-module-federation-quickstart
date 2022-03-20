@@ -1,7 +1,7 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
 import { generateWebpackConfig, productionWebpack } from '../webpack';
-import { addPropertyToObjectString, objectPattern } from '../../../core';
+import { addPropertyToObjectString, getAngularConfig, objectPattern } from '../../../core';
 import { format } from 'prettier';
 
 // You don't have to export the function as default. You can also have more than one rule factory
@@ -70,7 +70,7 @@ function removeNoNeededFiles(tree: Tree): Tree {
 }
 
 function useCustomWebpack(tree: Tree, projectName: string): Tree {
-  const angularConfig = JSON.parse(tree.get('angular.json').content.toString());
+  const angularConfig = getAngularConfig(tree);
   angularConfig.projects[projectName].architect.build.options.customWebpackConfig = {
     path: './webpack.prod.config.js',
     replaceDuplicatePlugins: true,
@@ -85,7 +85,7 @@ function useCustomWebpack(tree: Tree, projectName: string): Tree {
   angularConfig.projects[projectName].architect.serve.builder =
     '@angular-builders/custom-webpack:dev-server';
 
-  tree.overwrite('angular.json', JSON.stringify(angularConfig));
+  tree.overwrite('angular.json', format(JSON.stringify(angularConfig), { parser: 'json' }));
   return tree;
 }
 
