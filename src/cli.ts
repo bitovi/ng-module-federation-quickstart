@@ -1,11 +1,5 @@
 import { questionsToInitProject, questionsToRemoteModule } from './cli-questions';
-import {
-  IBiWorkspace,
-  IQuestionInit,
-  IQuestionsRemoteModule,
-  log,
-  parseArgumentsIntoOptions,
-} from './core';
+import { IBiWorkspace, IQuestionInit, IQuestionsRemoteModule, log, getCLIParameters } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';
 import { generateNewWorkspace, generateRemote, getExistingBiConfig } from './generators';
 import { build, serve } from './scripts';
@@ -14,23 +8,24 @@ import { join } from 'path';
 
 // main function
 export async function cli(args: any): Promise<void> {
-  let options: ICliParams = parseArgumentsIntoOptions(args);
+  let options: ICliParams = getCLIParameters(args);
+
   log.info('Executing custom command');
 
   // if serveAll
-  if (options.serveAll || options.serve) {
+  if (options._.includes('serveAll') || options.serve) {
     const workspace: IBiWorkspace = getExistingBiConfig();
     serve(workspace.rootPath, options.serve);
 
     return;
   }
 
-  if (options.buildAll || options.build) {
+  if (options._.includes('buildAll') || options.build) {
     build(options.build);
   }
 
   // if initiating project
-  if (options.init) {
+  if (options._.includes('init')) {
     let initProjectOptions: IQuestionInit = {
       projectName: options.projectName,
       style: options.style,
