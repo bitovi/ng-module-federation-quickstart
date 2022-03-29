@@ -3,7 +3,13 @@ import { execSync } from 'child_process';
 import { mkdirSync } from 'fs';
 import { join } from 'path';
 import process from 'process';
-import { ConsoleColor, IQuestionInit, log } from '../../core';
+import {
+  ConsoleColor,
+  getAllNameConventions,
+  INameConventions,
+  IQuestionInit,
+  log,
+} from '../../core';
 import {
   checkBiConfig,
   copyInitialAngularFiles,
@@ -12,7 +18,8 @@ import {
 } from './init-process';
 
 export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<void> {
-  const projectPath: string = join(process.cwd(), initOptions.projectName);
+  const projectNames: INameConventions = getAllNameConventions(initOptions.projectName);
+  const projectPath: string = join(process.cwd(), projectNames.kebab);
 
   // check if already exists a bitovi project in the folder
   checkBiConfig();
@@ -23,18 +30,18 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
 
   // generate host Angular App
   const goToWorkspace = `cd ${projectPath}/apps`;
-  const createMainApp = `ng new ${initOptions.projectName} --routing --style=${initOptions.style} --skip-git --skip-install`;
+  const createMainApp = `ng new ${projectNames.kebab} --routing --style=${initOptions.style} --skip-git --skip-install`;
   const gitInit = `cd ${projectPath} && git init`;
 
   execSync(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
 
   // copy initial angular files to project's root folder
-  copyInitialAngularFiles(projectPath, initOptions.projectName);
+  copyInitialAngularFiles(projectPath, projectNames.kebab);
 
   // use custom schematics to modify initial app to have host config
   try {
-    const enterFolder = `cd ${projectPath}/apps/${initOptions.projectName}`;
-    const setHostConfig = `ng g @bitovi/bi:bi --projectName=${initOptions.projectName} --host`;
+    const enterFolder = `cd ${projectPath}/apps/${projectNames.kebab}`;
+    const setHostConfig = `ng g @bitovi/bi:bi --projectName=${projectNames.kebab} --host`;
 
     execSync(`${enterFolder} && ${setHostConfig}`);
 
@@ -64,6 +71,6 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
     console.error(error);
   }
   // set initial configuration
-  setBitoviConfigurationFile(initOptions.projectName, projectPath, 4200);
+  setBitoviConfigurationFile(projectNames.kebab, projectPath, 4200);
   await createGitignore(projectPath);
 }

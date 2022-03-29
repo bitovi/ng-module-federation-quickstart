@@ -16,7 +16,7 @@ export function toKebabCase(str: string): string {
         : letter;
     })
     .join('')
-    .replace(/--/g, '-');
+    .replace(/-{2,}/g, '-');
 }
 
 export function kebabCaseToPascalCase(str: string): string {
@@ -39,7 +39,7 @@ export function capitalizeFirstLetter(str: string): string {
 }
 
 export function getAllNameConventions(str: string): INameConventions {
-  str = toKebabCase(str);
+  str = toKebabCase(str.replace(/_/g, '-'));
 
   return {
     kebab: str,

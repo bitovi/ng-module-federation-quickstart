@@ -10,7 +10,7 @@ const environmentFile = fs
 	.toString()
 	.replace(/export/, '');
 const environmentText = environmentFile.match(
-	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.]+\\}/gi,
+	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.\\}]+\\}/gi,
 )[0];
 const environment = eval(\`(() => { return \$\{environmentText\}})()\`);
 
@@ -21,8 +21,8 @@ sharedMappings.register(workspaceRootPath);
 
 module.exports = {
 	output: {
-		uniqueName: '{{projectName}}',
-		publicPath: environment.{{projectName}} || 'auto',
+		uniqueName: '{{projectNameVariable}}',
+		publicPath: environment.{{projectNameVariable}} || 'auto',
 		scriptType: 'module',
 	},
 	optimization: {

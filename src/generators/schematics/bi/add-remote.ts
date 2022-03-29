@@ -1,5 +1,10 @@
 import { Tree } from '@angular-devkit/schematics';
-import { objectPattern, parseToObject } from '../../../core';
+import {
+  getAllNameConventions,
+  INameConventions,
+  objectPattern,
+  parseToObject,
+} from '../../../core';
 import { format } from 'prettier';
 
 const devEnvPath = 'src/environments/environment.ts';
@@ -9,23 +14,24 @@ export function addRemote(tree: Tree, _options: any): Tree {
   const devEnvironment: string = tree.get(devEnvPath).content.toString();
   const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
   const newRoute = `http://localhost:${_options.port}/remoteEntry.js`;
+  const projectNames: INameConventions = getAllNameConventions(_options.projectName);
 
   const newDevEnvironment = parseToObject(devEnvironment.match(objectPattern)[0]);
   if (!newDevEnvironment.remotes) {
     newDevEnvironment.remotes = {
-      [_options.projectName]: newRoute,
+      [projectNames.camel]: newRoute,
     };
   } else {
-    newDevEnvironment.remotes[_options.projectName] = newRoute;
+    newDevEnvironment.remotes[projectNames.camel] = newRoute;
   }
 
   const newProdEnvironment = parseToObject(prodEnvironment.match(objectPattern)[0]);
   if (!newProdEnvironment.remotes) {
     newProdEnvironment.remotes = {
-      [_options.projectName]: newRoute,
+      [projectNames.camel]: newRoute,
     };
   } else {
-    newProdEnvironment.remotes[_options.projectName] = newRoute;
+    newProdEnvironment.remotes[projectNames.camel] = newRoute;
   }
 
   // overwrite environment
@@ -43,7 +49,7 @@ export function addRemote(tree: Tree, _options: any): Tree {
   );
 
   // add remote module declarations
-  const moduleDeclaration = `declare module '${_options.projectName}/Module';`;
+  const moduleDeclaration = `declare module '${projectNames.camel}/Module';`;
 
   if (tree.exists('src/decl.d.ts')) {
     let oldDeclarations = tree.get('src/decl.d.ts').content.toString();

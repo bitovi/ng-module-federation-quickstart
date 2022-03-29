@@ -7,6 +7,7 @@ export function addRouteToRoutingModule(
   routingModulePath: string,
   routeToAdd: string
 ): Tree {
+  console.log(routingModulePath);
   const oldRouterModule: string = tree.get(routingModulePath).content.toString();
   const allRoutes = oldRouterModule.match(routesPattern)[0];
   const foundRoutes = allRoutes.match(objectPattern);

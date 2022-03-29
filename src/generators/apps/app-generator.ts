@@ -1,18 +1,26 @@
 import { execSync } from 'child_process';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { ConsoleColor, IQuestionInit, log } from '../../core';
+import {
+  ConsoleColor,
+  getAllNameConventions,
+  INameConventions,
+  IQuestionInit,
+  log,
+} from '../../core';
 import { IApp, IBitoviConfig } from '../../core/interfaces/bitovi-config.interface';
 import { getExistingBiConfig } from '../workspace';
+import { format } from 'prettier';
 
 export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   const workspace = getExistingBiConfig();
+  const projectNames: INameConventions = getAllNameConventions(appOptions.projectName);
   const projectPath: string = workspace.rootPath;
   let bitoviConfig: IBitoviConfig = workspace.biConfig;
 
   // create remote app
   const enterPath = `cd ${projectPath}/apps`;
-  const generateRemote = `ng new ${appOptions.projectName} --routing --style=${appOptions.style} --skip-git --skip-install`;
+  const generateRemote = `ng new ${projectNames.kebab} --routing --style=${appOptions.style} --skip-git --skip-install`;
 
   try {
     execSync(`${enterPath} && ${generateRemote}`);
@@ -25,8 +33,8 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
 
   // modify remote to have custom webpack configuration
   const remotePort: number = getNextPort(bitoviConfig);
-  const enterRemote = `cd ${projectPath}/apps/${appOptions.projectName}`;
-  const modifyRemote = `ng g @bitovi/bi:bi --port=${remotePort} --projectName=${appOptions.projectName} --remote=true`;
+  const enterRemote = `cd ${projectPath}/apps/${projectNames.kebab}`;
+  const modifyRemote = `ng g @bitovi/bi:bi --port=${remotePort} --projectName=${projectNames.kebab} --remote=true`;
 
   try {
     execSync(`${enterRemote} && ${modifyRemote}`);
@@ -36,18 +44,18 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   }
 
   execSync(
-    `cd ${projectPath}/apps/${appOptions.projectName} && ng g @bitovi/bi:sample --remote=true --port=${remotePort} --modify=false`
+    `cd ${projectPath}/apps/${projectNames.kebab} && ng g @bitovi/bi:sample --remote=true --port=${remotePort} --modify=false`
   );
   const newProject: IApp = {
-    path: `apps/${appOptions.projectName}`,
+    path: `apps/${projectNames.kebab}`,
     port: remotePort,
   };
-  bitoviConfig.apps[appOptions.projectName] = newProject;
+  bitoviConfig.apps[projectNames.camel] = newProject;
 
   // add remote to host app
   const enterHost = `cd ${projectPath}/apps/${bitoviConfig.host}`;
-  const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${appOptions.projectName} --port=${remotePort} --addRemote=true --sample=true`;
-  const addRemoteSample = `ng g @bitovi/bi:sample --host=true --modify=true --port=${remotePort} --remoteName=${appOptions.projectName}`;
+  const addRemoteSchematic = `ng g @bitovi/bi:bi --projectName=${projectNames.kebab} --port=${remotePort} --addRemote=true --sample=true`;
+  const addRemoteSample = `ng g @bitovi/bi:sample --host=true --modify=true --port=${remotePort} --remoteName=${projectNames.kebab}`;
 
   try {
     execSync(`${enterHost} && ${addRemoteSchematic} && ${addRemoteSample}`);
@@ -59,7 +67,10 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   log.color(ConsoleColor.FgCyan, '\t -> Change link in production environment');
 
   // modify project configuration
-  writeFileSync(join(projectPath, 'bi.json'), JSON.stringify(bitoviConfig));
+  writeFileSync(
+    join(projectPath, 'bi.json'),
+    format(JSON.stringify(bitoviConfig), { parser: 'json' })
+  );
 }
 
 function getNextPort(bitoviConfig: IBitoviConfig): number {

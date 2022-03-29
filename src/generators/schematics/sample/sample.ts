@@ -1,6 +1,6 @@
 import { chain, externalSchematic, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRouteToRoutingModule, newAppRoutingModule, remoteRoute } from './module-samples';
-import { capitalizeFirstLetter, log } from '../../../core';
+import { capitalizeFirstLetter, getAllNameConventions, INameConventions, log } from '../../../core';
 import { format } from 'prettier';
 import { addExposedModule } from './module-samples/add-exposed-module.sample';
 
@@ -49,7 +49,7 @@ function addRemoteModuleToApp(tree: Tree, remoteModule: string): Tree {
 
   const remoteModulePath = `src/app/${remoteModule}/${remoteModule}-routing.module.ts`;
   const componentPath = `{
-    path: '${remoteModule}',
+    path: '${remoteModule !== 'remote' ? remoteModule : ''}',
     component: ${capitalizeFirstLetter(`${remoteModule}Component`)}
   }`;
   const componentImport = `import {  ${capitalizeFirstLetter(
@@ -78,7 +78,11 @@ function addRemoteModuleToApp(tree: Tree, remoteModule: string): Tree {
 
 function addRemoteRouteToHost(tree: Tree, _options: any): Tree {
   const appRoutingModulePath = 'src/app/app-routing.module.ts';
-  const newRouteToAdd = remoteRoute.replace(/\{\{remoteName\}\}/g, _options.remoteName ?? 'remote');
+  const remoteNames: INameConventions = getAllNameConventions(_options.remoteName);
+
+  const newRouteToAdd = remoteRoute
+    .replace(/\{\{remoteName\}\}/g, remoteNames.camel ?? 'remote')
+    .replace(/\{\{remoteNameRoute\}\}/g, remoteNames.kebab ?? 'remote');
 
   let routerModule = tree.get('src/app/app-routing.module.ts').content.toString();
 

@@ -1,10 +1,10 @@
 export const remoteRoute = `
 	{
-		path: '{{remoteName}}',
+		path: '{{remoteNameRoute}}',
 		loadChildren: () =>
 			loadRemoteModule({
 				type: 'module',
-				remoteEntry: environment.remote.{{remoteName}},
+				remoteEntry: environment.remotes.{{remoteName}},
 				exposedModule: 'RemoteModule',
 			}).then((m) => m.RemoteModule),
 	}`;

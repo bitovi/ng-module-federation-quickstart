@@ -11,7 +11,7 @@ const environmentFile = fs
 	.toString()
 	.replace(/export/, '');
 const environmentText = environmentFile.match(
-	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.]+\\}/gi,
+	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.\\}]+\\}/gi,
 )[0];
 const environment = eval(\`(() => { return \${environmentText}})()\`);
 

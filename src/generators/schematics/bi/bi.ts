@@ -1,16 +1,24 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { addRemote } from './add-remote';
 import { generateWebpackConfig, productionWebpack } from '../webpack';
-import { addPropertyToObjectString, getAngularConfig, objectPattern } from '../../../core';
+import {
+  addPropertyToObjectString,
+  getAllNameConventions,
+  getAngularConfig,
+  INameConventions,
+  objectPattern,
+  toCamelCase,
+} from '../../../core';
 import { format } from 'prettier';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 export function bitovi(_options: any): Rule {
   return (tree: Tree, _context: SchematicContext) => {
+    const projectNames: INameConventions = getAllNameConventions(_options.projectName || '');
+
     // if port exists, is remote app
     // add webpack config for module federation
-
     if (_options.port && _options.addRemote) {
       // add remotes to host
       const remoteAdded = addRemote(tree, _options);
@@ -33,7 +41,7 @@ export function bitovi(_options: any): Rule {
     if (_options.host) {
       tree.create(
         'webpack.config.js',
-        generateWebpackConfig({ port: 4200, projectName: _options.projectName }, true)
+        generateWebpackConfig({ port: 4200, projectName: projectNames.camel }, true)
       );
     }
 
@@ -48,13 +56,13 @@ export function bitovi(_options: any): Rule {
     // call bootstrap from main
     tree.overwrite('src/main.ts', bootstrapContent);
 
-    tree = updateEnvironment(tree, _options.projectName);
+    tree = updateEnvironment(tree, projectNames.camel);
 
     // removes package.json, .vscode, .gitignore and .editorconfig
     // those files are no needed
     tree = removeNoNeededFiles(tree);
     // gets angular.json and sets our webpack config as the webpack config to
-    tree = useCustomWebpack(tree, _options.projectName);
+    tree = useCustomWebpack(tree, projectNames.kebab);
 
     return tree;
   };
@@ -71,10 +79,25 @@ function removeNoNeededFiles(tree: Tree): Tree {
 
 function useCustomWebpack(tree: Tree, projectName: string): Tree {
   const angularConfig = getAngularConfig(tree);
+  const customProdWebpackConfig = {
+    path: './webpack.prod.config.js',
+    replaceDuplicatePlugins: true,
+  };
+  const customDevWebpackConfig = {
+    path: './webpack.prod.config.js',
+    replaceDuplicatePlugins: true,
+  };
+
   angularConfig.projects[projectName].architect.build.options.customWebpackConfig = {
     path: './webpack.prod.config.js',
     replaceDuplicatePlugins: true,
   };
+  angularConfig.projects[
+    projectName
+  ].architect.build.configurations.production.customWebpackConfig = customProdWebpackConfig;
+  angularConfig.projects[
+    projectName
+  ].architect.build.configurations.development.customWebpackConfig = customDevWebpackConfig;
 
   angularConfig.projects[projectName].architect.build.builder =
     '@angular-builders/custom-webpack:browser';
@@ -96,7 +119,7 @@ function updateEnvironment(tree: Tree, projectName: string) {
   const devEnvironment: string = tree.get(devEnvPath).content.toString();
   const prodEnvironment: string = tree.get(prodEnvPat).content.toString();
 
-  const newRoute = `${projectName}: 'auto'`;
+  const newRoute = `${projectName} : 'auto'`;
   const newDevEnvironment = addPropertyToObjectString(devEnvironment, newRoute);
   const newProdEnvironment = addPropertyToObjectString(prodEnvironment, newRoute);
 
