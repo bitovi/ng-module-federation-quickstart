@@ -1,0 +1,1 @@
+# Bitovi Module Federation Generator
