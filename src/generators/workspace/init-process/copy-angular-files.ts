@@ -1,8 +1,10 @@
 import { copyFileSync, readdirSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { log } from '../../../core';
+import { Loader, log } from '../../../core';
 
 export function copyInitialAngularFiles(projectPath: string, projectName: string): void {
+  const loader: Loader = new Loader();
+  loader.startTimer('Copying Angular files to workspace');
   // copy package.json to root folder
   try {
     copyFileSync(
@@ -30,4 +32,6 @@ export function copyInitialAngularFiles(projectPath: string, projectName: string
 
     log.success('.vscode copied successfully');
   } catch (error) {}
+
+  loader.clearTimer();
 }

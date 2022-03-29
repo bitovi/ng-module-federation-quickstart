@@ -6,3 +6,4 @@ export * from './add-property-string.util';
 export * from './name-convention.util';
 export * from './get-angular-config.util';
 export * from './loader.util';
+export * from './exec.util';

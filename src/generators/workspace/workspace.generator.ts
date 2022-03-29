@@ -1,13 +1,13 @@
-import { execSync } from 'child_process';
-
 import { mkdirSync } from 'fs';
 import { join } from 'path';
 import process from 'process';
 import {
   ConsoleColor,
+  exec,
   getAllNameConventions,
   INameConventions,
   IQuestionInit,
+  Loader,
   log,
 } from '../../core';
 import {
@@ -18,6 +18,7 @@ import {
 } from './init-process';
 
 export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<void> {
+  const loader: Loader = new Loader();
   const projectNames: INameConventions = getAllNameConventions(initOptions.projectName);
   const projectPath: string = join(process.cwd(), projectNames.kebab);
 
@@ -33,20 +34,25 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
   const createMainApp = `ng new ${projectNames.kebab} --routing --style=${initOptions.style} --skip-git --skip-install`;
   const gitInit = `cd ${projectPath} && git init`;
 
-  execSync(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
+  loader.startTimer('Creating Workspace');
+  await exec(`${goToWorkspace} && ${createMainApp} && ${gitInit}`);
+  loader.clearTimer();
 
   // copy initial angular files to project's root folder
   copyInitialAngularFiles(projectPath, projectNames.kebab);
 
   // use custom schematics to modify initial app to have host config
   try {
+    loader.startTimer('Setting Host');
     const enterFolder = `cd ${projectPath}/apps/${projectNames.kebab}`;
     const setHostConfig = `ng g @bitovi/bi:bi --projectName=${projectNames.kebab} --host`;
 
-    execSync(`${enterFolder} && ${setHostConfig}`);
+    await exec(`${enterFolder} && ${setHostConfig}`);
 
+    loader.clearTimer();
     log.success('Host config set successfully');
   } catch (error) {
+    loader.clearTimer();
     log.error("Couldn't modify angular app to have host config");
     console.error(error);
   }
@@ -57,12 +63,16 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
   const installModuleFederation = 'npm install @angular-architects/module-federation';
   const installCustomWebpack = 'npm install @angular-builders/custom-webpack';
 
+  loader.startTimer('Installing dependencies');
   try {
-    execSync(
+    await exec(
       `${enterRootFolder} && ${installInitialPackages} && ${installModuleFederation} && ${installCustomWebpack}`
     );
-    log.success('Packages installed');
+
+    loader.clearTimer();
+    log.success('Dependencies installed');
   } catch (error) {
+    loader.clearTimer();
     log.error('There was an error trying to install packages');
     log.color(
       ConsoleColor.FgCyan,
