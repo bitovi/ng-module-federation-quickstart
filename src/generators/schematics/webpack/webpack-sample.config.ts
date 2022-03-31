@@ -1,29 +1,20 @@
-export const webpackRemoteConfigTemplate = `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+export const webpackSampleConfigTemplate = `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const mf = require('@angular-architects/module-federation/webpack');
 const path = require('path');
+const { execSync } = require('child_process');
 const share = mf.share;
-const fs = require('fs');
 
-const environmentPath = path.join(__dirname, 'src/environments/environment.ts');
-const environmentFile = fs
-	.readFileSync(environmentPath)
-	.toString()
-	.replace(/export/, '');
-const environmentText = environmentFile.match(
-	/\\{[\\n\\s\\t\\=\\"\\'\\:A-Z\\{@\\/\\:0-9\\,\\.\\}]+\\}/gi,
-)[0];
-const environment = eval(\`(() => { return \$\{environmentText\}})()\`);
+execSync('tsc ./src/environments/environment.ts');
+const environment = require('./src/environments/environment').environment;
 
 const workspaceRootPath = path.join(__dirname, 'tsconfig.app.json');
 const sharedMappings = new mf.SharedMappings();
-
 sharedMappings.register(workspaceRootPath);
 
 module.exports = {
 	output: {
-		uniqueName: '{{projectNameVariable}}',
-		publicPath: environment.{{projectNameVariable}} || 'auto',
-		scriptType: 'module',
+		uniqueName: 'newProject',
+		publicPath: environment.newProject || 'auto',
 	},
 	optimization: {
 		runtimeChunk: false,
@@ -33,16 +24,14 @@ module.exports = {
 			...sharedMappings.getAliases(),
 		},
 	},
-	experiments: {
-		outputModule: true,
-	},
 	plugins: [
 		new ModuleFederationPlugin({
-			name: '{{projectName}}',
-			filename: 'remoteEntry.js',
-			library: { type: 'module' },
-			exposes: {
-				...environment.exposes
+			name: 'newProject',
+			remotes: {
+				...environment.remotes,
+			},
+			exposes: { 
+				...environment.exposes 
 			},
 			shared: share({
 				'@angular/core': {
@@ -75,9 +64,9 @@ module.exports = {
 					requiredVersion: 'auto',
 					includeSecondaries: true,
 				},
-				...sharedMappings.getDescriptors(),
 			}),
 		}),
 		sharedMappings.getPlugin(),
 	],
-};`;
+};
+`;

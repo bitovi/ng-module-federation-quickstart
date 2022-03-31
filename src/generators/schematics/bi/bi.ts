@@ -41,7 +41,7 @@ export function bitovi(_options: any): Rule {
     if (_options.host) {
       tree.create(
         'webpack.config.js',
-        generateWebpackConfig({ port: 4200, projectName: projectNames.camel }, true)
+        generateWebpackConfig({ port: 4200, projectName: projectNames.camel })
       );
     }
 
@@ -84,14 +84,10 @@ function useCustomWebpack(tree: Tree, projectName: string): Tree {
     replaceDuplicatePlugins: true,
   };
   const customDevWebpackConfig = {
-    path: './webpack.prod.config.js',
+    path: './webpack.config.js',
     replaceDuplicatePlugins: true,
   };
 
-  angularConfig.projects[projectName].architect.build.options.customWebpackConfig = {
-    path: './webpack.prod.config.js',
-    replaceDuplicatePlugins: true,
-  };
   angularConfig.projects[
     projectName
   ].architect.build.configurations.production.customWebpackConfig = customProdWebpackConfig;

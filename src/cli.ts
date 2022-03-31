@@ -17,8 +17,6 @@ import { join } from 'path';
 export async function cli(args: any): Promise<void> {
   let options: ICliParams = getCLIParameters(args);
 
-  log.info('Executing custom command');
-
   // if serveAll
   if (options._.includes('serveAll') || options.serve) {
     const workspace: IBiWorkspace = getExistingBiConfig();
