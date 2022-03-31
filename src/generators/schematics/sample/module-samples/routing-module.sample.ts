@@ -1,5 +1,5 @@
 export const newAppRoutingModule = `
 	{
-		path: '',
+		path: '{{moduleRoute}}',
 		loadChildren: () => import('{{modulePath}}').then((m) => m.{{moduleName}}),
 	}`;

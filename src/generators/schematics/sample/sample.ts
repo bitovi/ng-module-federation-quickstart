@@ -5,7 +5,8 @@ import { format } from 'prettier';
 import { addExposedModule } from './module-samples/add-exposed-module.sample';
 
 export function sample(_options: any): Rule {
-  const remoteModule = _options.remoteModule || 'remote';
+  const remoteNames: INameConventions = getAllNameConventions(_options.remoteModule || 'remote');
+  const remoteModule = remoteNames.kebab;
 
   return (tree: Tree, _context: SchematicContext) => {
     if (_options.host && _options.modify) {
@@ -40,21 +41,23 @@ export function sample(_options: any): Rule {
 }
 
 function addRemoteModuleToApp(tree: Tree, remoteModule: string): Tree {
+  const remoteNames: INameConventions = getAllNameConventions(remoteModule || 'remote');
   const appRoutingModulePath = 'src/app/app-routing.module.ts';
   const routeToAdd = newAppRoutingModule
-    .replace(/\{\{modulePath\}\}/, `./${remoteModule}/${remoteModule}.module`)
-    .replace(/\{\{moduleName\}\}/, capitalizeFirstLetter(`${remoteModule}Module`));
+    .replace(/\{\{modulePath\}\}/, `./${remoteNames.kebab}/${remoteNames.kebab}.module`)
+    .replace(/\{\{moduleName\}\}/, capitalizeFirstLetter(`${remoteNames.pascal}Module`))
+    .replace(/\{\{moduleRoute\}\}/, remoteModule === 'remote' ? '' : remoteNames.kebab);
 
   tree = addRouteToRoutingModule(tree, appRoutingModulePath, routeToAdd);
 
-  const remoteModulePath = `src/app/${remoteModule}/${remoteModule}-routing.module.ts`;
+  const remoteModulePath = `src/app/${remoteNames.kebab}/${remoteNames.kebab}-routing.module.ts`;
   const componentPath = `{
-    path: '${remoteModule !== 'remote' ? remoteModule : ''}',
-    component: ${capitalizeFirstLetter(`${remoteModule}Component`)}
+    path: '${remoteNames.camel !== 'remote' ? remoteNames.kebab : ''}',
+    component: ${capitalizeFirstLetter(`${remoteNames.pascal}Component`)}
   }`;
   const componentImport = `import {  ${capitalizeFirstLetter(
-    `${remoteModule}Component`
-  )} } from './${remoteModule}/${remoteModule}.component'`;
+    `${remoteNames.pascal}Component`
+  )} } from './${remoteNames.kebab}/${remoteNames.kebab}.component'`;
 
   tree = addRouteToRoutingModule(tree, remoteModulePath, componentPath);
   const routeModule = tree.get(remoteModulePath).content.toString();
@@ -69,8 +72,8 @@ function addRemoteModuleToApp(tree: Tree, remoteModule: string): Tree {
 
   tree = addExposedModule(
     tree,
-    capitalizeFirstLetter(`${remoteModule}Module`),
-    `./src/app/${remoteModule}/${remoteModule}.module.ts`
+    capitalizeFirstLetter(`${remoteNames.pascal}Module`),
+    `./src/app/${remoteNames.kebab}/${remoteNames.kebab}.module.ts`
   );
 
   return tree;
