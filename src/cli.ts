@@ -5,7 +5,6 @@ import {
   IQuestionsRemoteModule,
   log,
   getCLIParameters,
-  Loader,
   exec,
 } from './core';
 import { ICliParams } from './core/interfaces/cli-params.interface';

@@ -1,5 +1,5 @@
 import inquirer, { QuestionCollection } from 'inquirer';
-import { IBitoviConfig, IBiWorkspace, IQuestionsRemoteModule } from '../core';
+import { IBitoviConfig, IBiWorkspace, IQuestionsRemoteModule, log } from '../core';
 import { getExistingBiConfig } from '../generators';
 
 export async function questionsToRemoteModule(
@@ -11,6 +11,11 @@ export async function questionsToRemoteModule(
   const remoteApps: string[] = Object.keys(workspace.apps).filter(
     (app: string) => app !== workspace.host
   );
+
+  if (!remoteApps?.length) {
+    log.error('There are no remote apps yet');
+    process.exit(1);
+  }
 
   if (!args.projectName || !remoteApps.includes(args.projectName)) {
     questions.push({
