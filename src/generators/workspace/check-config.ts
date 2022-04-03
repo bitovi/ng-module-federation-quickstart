@@ -28,7 +28,7 @@ export function getExistingBiConfig(): IBiWorkspace {
 
 function searchBiWorkspaceRoot(): string {
   const commandPath = normalize(process.cwd()).split(process.cwd().includes('/') ? '/' : '\\');
-  console.log(commandPath);
+
   for (let index = commandPath.length - 1; index >= 0; index--) {
     commandPath.pop();
     const upperPath: string = commandPath.join('/');

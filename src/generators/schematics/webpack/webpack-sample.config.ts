@@ -1,10 +1,10 @@
 export const webpackSampleConfigTemplate = `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const mf = require('@angular-architects/module-federation/webpack');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const share = mf.share;
 
-execSync('tsc ./src/environments/environment.ts');
+spawnSync('tsc ./src/environments/environment.ts');
 const environment = require('./src/environments/environment').environment;
 
 const workspaceRootPath = path.join(__dirname, 'tsconfig.app.json');
