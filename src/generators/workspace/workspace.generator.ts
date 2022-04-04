@@ -62,11 +62,12 @@ export async function generateNewWorkspace(initOptions: IQuestionInit): Promise<
   const installInitialPackages = `npm install`;
   const installModuleFederation = 'npm install @angular-architects/module-federation';
   const installCustomWebpack = 'npm install @angular-builders/custom-webpack';
+  const installTypescript = 'npm install typescript';
 
   loader.startTimer('Installing dependencies');
   try {
     await exec(
-      `${enterRootFolder} && ${installInitialPackages} && ${installModuleFederation} && ${installCustomWebpack}`
+      `${enterRootFolder} && ${installInitialPackages} && ${installModuleFederation} && ${installCustomWebpack} && ${installTypescript}`
     );
 
     loader.clearTimer();

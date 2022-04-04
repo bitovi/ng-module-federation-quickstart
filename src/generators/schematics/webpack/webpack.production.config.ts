@@ -1,8 +1,15 @@
 export const productionWebpack = `const webpack = require('./webpack.config');
 const { execSync } = require('child_process');
 
-execSync('tsc ./src/environments/environment.prod.ts');
-const environment = require('./src/environments/environment.prod').environment;
+const envPath = path.resolve(
+	path.join(__dirname, '/src/environments/environment.ts'),
+);
+
+try {
+	execSync(\`tsc $\{envPath\}\`, { stdio: null });
+} catch (e) {}
+
+const environment = require('./src/environments/environment').environment;
 
 webpack.output.publicPath = environment[webpack.output.uniqueName];
 

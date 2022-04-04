@@ -1,10 +1,17 @@
 export const webpackSampleConfigTemplate = `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const mf = require('@angular-architects/module-federation/webpack');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { execSync } = require('child_process');
 const share = mf.share;
 
-spawnSync('tsc ./src/environments/environment.ts');
+const envPath = path.resolve(
+	path.join(__dirname, '/src/environments/environment.ts'),
+);
+
+try {
+	execSync(\`tsc $\{envPath\}\`, { stdio: null });
+} catch (e) {}
+
 const environment = require('./src/environments/environment').environment;
 
 const workspaceRootPath = path.join(__dirname, 'tsconfig.app.json');
@@ -13,8 +20,8 @@ sharedMappings.register(workspaceRootPath);
 
 module.exports = {
 	output: {
-		uniqueName: 'newProject',
-		publicPath: environment.newProject || 'auto',
+		uniqueName: '{{projectNameVariable}}',
+		publicPath: environment.{{projectNameVariable}} || 'auto',
 	},
 	optimization: {
 		runtimeChunk: false,
@@ -26,7 +33,7 @@ module.exports = {
 	},
 	plugins: [
 		new ModuleFederationPlugin({
-			name: 'newProject',
+			name: '{{projectNameVariable}}',
 			remotes: {
 				...environment.remotes,
 			},
