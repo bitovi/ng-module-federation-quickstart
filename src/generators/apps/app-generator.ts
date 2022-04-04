@@ -44,6 +44,7 @@ export async function generateRemote(appOptions: IQuestionInit): Promise<void> {
   loader.startTimer('Setting remote app');
   try {
     await exec(`${enterRemote} && ${modifyRemote}`);
+    loader.clearTimer();
     log.success('Remote set successfully');
   } catch (error) {
     loader.clearTimer();

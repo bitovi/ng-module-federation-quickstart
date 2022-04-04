@@ -1,4 +1,5 @@
-export const webpackSampleConfigTemplate = `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+export const webpackSampleConfigTemplate = (isHost = true) => {
+  return `const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const mf = require('@angular-architects/module-federation/webpack');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -31,15 +32,12 @@ module.exports = {
 			...sharedMappings.getAliases(),
 		},
 	},
+	${!isHost ? 'experiments: {outputModule: true,},' : ''}
 	plugins: [
 		new ModuleFederationPlugin({
 			name: '{{projectNameVariable}}',
-			remotes: {
-				...environment.remotes,
-			},
-			exposes: { 
-				...environment.exposes 
-			},
+			${!isHost ? "filename: 'remoteEntry.js',\nlibrary: { type: 'module' }," : ''}
+			${isHost ? 'remotes: {...environment.remotes,},' : 'exposes: {...environment.exposes },'}
 			shared: share({
 				'@angular/core': {
 					singleton: true,
@@ -77,3 +75,4 @@ module.exports = {
 	],
 };
 `;
+};

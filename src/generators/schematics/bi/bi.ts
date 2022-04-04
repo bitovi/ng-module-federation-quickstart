@@ -30,10 +30,16 @@ export function bitovi(_options: any): Rule {
     if (_options.port && !_options.host) {
       tree.create(
         'webpack.config.js',
-        generateWebpackConfig({
-          port: _options.port,
-          projectName: _options.projectName,
-        })
+        format(
+          generateWebpackConfig(
+            {
+              port: _options.port,
+              projectName: _options.projectName,
+            },
+            false
+          ),
+          { parser: 'babel' }
+        )
       );
     }
 
@@ -41,7 +47,9 @@ export function bitovi(_options: any): Rule {
     if (_options.host) {
       tree.create(
         'webpack.config.js',
-        generateWebpackConfig({ port: 4200, projectName: projectNames.camel })
+        format(generateWebpackConfig({ port: 4200, projectName: projectNames.camel }), {
+          parser: 'babel',
+        })
       );
     }
 

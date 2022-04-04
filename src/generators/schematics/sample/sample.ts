@@ -52,7 +52,7 @@ function addRemoteModuleToApp(tree: Tree, remoteModule: string): Tree {
 
   const remoteModulePath = `src/app/${remoteNames.kebab}/${remoteNames.kebab}-routing.module.ts`;
   const componentPath = `{
-    path: '${remoteNames.camel !== 'remote' ? remoteNames.kebab : ''}',
+    path: '',
     component: ${capitalizeFirstLetter(`${remoteNames.pascal}Component`)}
   }`;
   const componentImport = `import {  ${capitalizeFirstLetter(
